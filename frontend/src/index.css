@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #005cbb;
+  --color-brand-primary-hover: #004ea1;
+  --color-brand-primary-light: #e6f0fa;
+  --color-brand-accent: #ee3a43;
+  --color-brand-accent-hover: #d32f2f;
+
+  --color-brand-red: var(--color-brand-primary);
+  --color-brand-red-hover: var(--color-brand-primary-hover);
+  --color-brand-red-light: var(--color-brand-primary-light);
+  --color-brand-teal: var(--color-brand-accent);
+  --color-brand-teal-hover: var(--color-brand-accent-hover);
+  --color-brand-dark: #0f172a;
+  --color-brand-dark-surface: #0f172a;
+  --color-brand-text: #0f172a;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-section, .print-section * {
+    visibility: visible;
+  }
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

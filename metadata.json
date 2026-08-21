@@ -1,0 +1,6 @@
+{
+  "name": "Impulso Académico L&L",
+  "description": "Plataforma de gestión académica y portal escolar con dashboard, cursos, credenciales, plantilla de WhatsApp y horarios de clase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
