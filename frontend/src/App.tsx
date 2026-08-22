@@ -387,6 +387,28 @@ export default function App() {
       console.error('Error removing course:', error);
     }
   };
+  const handleDeleteStudent = async (studentId: string) => {
+    try {
+      const studentToDelete = students.find(s => s.id === studentId);
+      const response = await fetch(`/api/students/${studentId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(prev => prev.filter(s => s.id !== studentId));
+        if (studentToDelete) {
+          setActivities(prev => prev.filter(act => act.user !== studentToDelete.name && act.user !== studentToDelete.username));
+        }
+        if (data.activity) {
+          setActivities(prev => [data.activity, ...prev]);
+        }
+      } else {
+        console.error('Failed to delete student');
+      }
+    } catch (error) {
+      console.error('Error deleting student:', error);
+    }
+  };
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -432,6 +454,7 @@ export default function App() {
             onUpdateStudentCredentials={handleUpdateStudentCredentials}
             onAssignCourse={handleAssignCourse}
             onRemoveCourse={handleRemoveCourse}
+            onDeleteStudent={handleDeleteStudent}
           />
         );
       case 'whatsapp':

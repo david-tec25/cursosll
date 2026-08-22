@@ -15,7 +15,8 @@ import {
   CreditCard,
   UserCheck,
   X,
-  Copy
+  Copy,
+  Trash2
 } from 'lucide-react';
 
 interface StudentsDashboardProps {
@@ -30,6 +31,7 @@ interface StudentsDashboardProps {
   ) => Promise<boolean>;
   onAssignCourse: (studentId: string, courseId: string) => Promise<void>;
   onRemoveCourse: (studentId: string, courseId: string) => Promise<void>;
+  onDeleteStudent: (studentId: string) => Promise<void>;
 }
 
 export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
@@ -39,6 +41,7 @@ export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
   onUpdateStudentCredentials,
   onAssignCourse,
   onRemoveCourse,
+  onDeleteStudent,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'directory' | 'assign' | 'credentials'>('directory');
   const [searchQuery, setSearchQuery] = useState('');
@@ -277,18 +280,32 @@ export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
                             </span>
                           </td>
 
-                          {/* Action to Assign Courses */}
+                          {/* Action to Assign Courses & Delete */}
                           <td className="p-4 text-right pr-6">
-                            <button
-                              onClick={() => {
-                                setSelectedStudentForCourses(s);
-                                setIsAssignmentModalOpen(true);
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f1f5f9] hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer shadow-3xs"
-                            >
-                              <BookOpen className="w-3.5 h-3.5 text-brand-teal" />
-                              <span>Asignar ({assignedCoursesCount})</span>
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedStudentForCourses(s);
+                                  setIsAssignmentModalOpen(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f1f5f9] hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer shadow-3xs"
+                              >
+                                <BookOpen className="w-3.5 h-3.5 text-brand-teal" />
+                                <span>Asignar ({assignedCoursesCount})</span>
+                              </button>
+                              
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`¿Estás seguro de que deseas eliminar permanentemente al alumno "${s.name}" y todo su historial de la base de datos?`)) {
+                                    onDeleteStudent(s.id);
+                                  }
+                                }}
+                                className="inline-flex items-center justify-center p-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-650 dark:text-red-400 rounded-xl border border-red-200/50 dark:border-red-900/30 transition-all cursor-pointer shadow-3xs"
+                                title="Eliminar Alumno"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

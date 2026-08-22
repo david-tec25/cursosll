@@ -135,6 +135,55 @@ app.put('/api/students/:id/credentials', async (req, res) => {
   }
 });
 
+app.delete('/api/students/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 1. Get student details (name, username) before deleting to clean up activities
+    const studentRes = await query(
+      `SELECT name, username FROM students WHERE id = $1`,
+      [id]
+    );
+
+    if (studentRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Estudiante no encontrado' });
+    }
+
+    const { name, username } = studentRes.rows[0];
+
+    // 2. Delete student (Cascades to student_courses automatically)
+    await query(`DELETE FROM students WHERE id = $1`, [id]);
+
+    // 3. Delete related activities (log history of the student)
+    await query(
+      `DELETE FROM recent_activities WHERE username = $1 OR username = $2`,
+      [name, username]
+    );
+
+    // 4. Log the deletion activity
+    const activityId = `act-${Date.now()}`;
+    const activityRes = await query(
+      `INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, username AS user, user_initials AS "userInitials", action, date_time AS "dateTime", status, type`,
+      [
+        activityId,
+        'Administrador',
+        'AD',
+        `Eliminación del alumno: ${name}`,
+        'Justo ahora',
+        'Completado',
+        'curso'
+      ]
+    );
+
+    res.json({ success: true, activity: activityRes.rows[0] });
+  } catch (err: any) {
+    console.error('Error deleting student:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.post('/api/students/:id/courses', async (req, res) => {
   const { id } = req.params;
   const { courseId } = req.body;
