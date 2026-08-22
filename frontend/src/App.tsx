@@ -111,11 +111,11 @@ export default function App() {
           resActivities.json(),
         ]);
 
-        setStudents(studentsData);
-        setCourses(coursesData);
-        setTeachers(teachersData);
-        setScheduleItems(scheduleData);
-        setActivities(activitiesData);
+        if (Array.isArray(studentsData)) setStudents(studentsData);
+        if (Array.isArray(coursesData)) setCourses(coursesData);
+        if (Array.isArray(teachersData)) setTeachers(teachersData);
+        if (Array.isArray(scheduleData)) setScheduleItems(scheduleData);
+        if (Array.isArray(activitiesData)) setActivities(activitiesData);
       } catch (error) {
         console.error('Error fetching data from backend:', error);
       } finally {
