@@ -17,7 +17,9 @@ import { NewRegistrationModal } from './components/NewRegistrationModal';
 import { TeacherDashboard } from './components/TeacherDashboard';
 import { NewCourseModal } from './components/NewCourseModal';
 
-const REACT_APP_BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+const REACT_APP_BACKEND_URL = import.meta.env.DEV
+  ? ''
+  : (import.meta.env.REACT_APP_BACKEND_URL || 'https://cursosll-backend-production.up.railway.app');
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
