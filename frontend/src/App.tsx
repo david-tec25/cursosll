@@ -17,6 +17,8 @@ import { NewRegistrationModal } from './components/NewRegistrationModal';
 import { TeacherDashboard } from './components/TeacherDashboard';
 import { NewCourseModal } from './components/NewCourseModal';
 
+const REACT_APP_BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
@@ -94,11 +96,11 @@ export default function App() {
     const fetchData = async () => {
       try {
         const [resStudents, resCourses, resTeachers, resSchedule, resActivities] = await Promise.all([
-          fetch('/api/students'),
-          fetch('/api/courses'),
-          fetch('/api/teachers'),
-          fetch('/api/schedule'),
-          fetch('/api/activities'),
+          fetch(`${REACT_APP_BACKEND_URL}/api/students`),
+          fetch(`${REACT_APP_BACKEND_URL}/api/courses`),
+          fetch(`${REACT_APP_BACKEND_URL}/api/teachers`),
+          fetch(`${REACT_APP_BACKEND_URL}/api/schedule`),
+          fetch(`${REACT_APP_BACKEND_URL}/api/activities`),
         ]);
 
         const [studentsData, coursesData, teachersData, scheduleData, activitiesData] = await Promise.all([
@@ -127,7 +129,7 @@ export default function App() {
   // Handlers
   const handleAddStudent = async (newStudent: Student) => {
     try {
-      const response = await fetch('/api/students', {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +155,7 @@ export default function App() {
     status: Student['status']
   ): Promise<boolean> => {
     try {
-      const response = await fetch(`/api/students/${studentId}/credentials`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${studentId}/credentials`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +178,7 @@ export default function App() {
 
   const handleAddScheduleItem = async (newItem: ScheduleItem) => {
     try {
-      const response = await fetch('/api/schedule', {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/schedule`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +207,7 @@ export default function App() {
 
   const handleClearScheduleForCourse = async (title: string, teacher: string, weekStartDate: string) => {
     try {
-      const response = await fetch(`/api/schedule/course/${encodeURIComponent(title)}/teacher/${encodeURIComponent(teacher)}/week/${encodeURIComponent(weekStartDate)}`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/schedule/course/${encodeURIComponent(title)}/teacher/${encodeURIComponent(teacher)}/week/${encodeURIComponent(weekStartDate)}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -285,7 +287,7 @@ export default function App() {
 
   const handleUpdateCourseSchedule = async (courseName: string, room: string, timeSlot: string, teacher?: string) => {
     try {
-      const response = await fetch(`/api/courses/name/${encodeURIComponent(courseName)}`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/courses/name/${encodeURIComponent(courseName)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -305,7 +307,7 @@ export default function App() {
 
   const handleResolveConflict = async (itemId: string) => {
     try {
-      const response = await fetch(`/api/schedule/${itemId}/resolve`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/schedule/${itemId}/resolve`, {
         method: 'PUT',
       });
       if (response.ok) {
@@ -320,7 +322,7 @@ export default function App() {
   };
   const handleAddCourse = async (newCourse: Course) => {
     try {
-      const response = await fetch('/api/courses', {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -344,7 +346,7 @@ export default function App() {
 
   const handleAssignCourse = async (studentId: string, courseId: string) => {
     try {
-      const response = await fetch(`/api/students/${studentId}/courses`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${studentId}/courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -369,7 +371,7 @@ export default function App() {
 
   const handleRemoveCourse = async (studentId: string, courseId: string) => {
     try {
-      const response = await fetch(`/api/students/${studentId}/courses/${courseId}`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${studentId}/courses/${courseId}`, {
         method: 'DELETE',
       });
       if (response.ok) {
