@@ -394,7 +394,7 @@ export default function App() {
   const handleDeleteStudent = async (studentId: string) => {
     try {
       const studentToDelete = students.find(s => s.id === studentId);
-      const response = await fetch(`/api/students/${studentId}`, {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${studentId}`, {
         method: 'DELETE',
       });
       if (response.ok) {
