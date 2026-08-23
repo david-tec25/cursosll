@@ -110,6 +110,39 @@ app.put('/api/students/:id/credentials', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+app.delete('/api/students/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // 1. Get student details (name, username) before deleting to clean up activities
+        const studentRes = await query(`SELECT name, username FROM students WHERE id = $1`, [id]);
+        if (studentRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Estudiante no encontrado' });
+        }
+        const { name, username } = studentRes.rows[0];
+        // 2. Delete student (Cascades to student_courses automatically)
+        await query(`DELETE FROM students WHERE id = $1`, [id]);
+        // 3. Delete related activities (log history of the student)
+        await query(`DELETE FROM recent_activities WHERE username = $1 OR username = $2`, [name, username]);
+        // 4. Log the deletion activity
+        const activityId = `act-${Date.now()}`;
+        const activityRes = await query(`INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, username AS user, user_initials AS "userInitials", action, date_time AS "dateTime", status, type`, [
+            activityId,
+            'Administrador',
+            'AD',
+            `Eliminación del alumno: ${name}`,
+            'Justo ahora',
+            'Completado',
+            'curso'
+        ]);
+        res.json({ success: true, activity: activityRes.rows[0] });
+    }
+    catch (err) {
+        console.error('Error deleting student:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 app.post('/api/students/:id/courses', async (req, res) => {
     const { id } = req.params;
     const { courseId } = req.body;
@@ -198,6 +231,48 @@ app.put('/api/courses/name/:name', async (req, res) => {
     }
     catch (err) {
         console.error('Error updating course by name:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+app.delete('/api/courses/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // 1. Check if there are active students enrolled in this course
+        const checkRes = await query(`SELECT COUNT(*) AS count 
+       FROM student_courses sc 
+       JOIN students s ON sc.student_id = s.id 
+       WHERE sc.course_id = $1 AND s.status = 'Activo'`, [id]);
+        const activeCount = parseInt(checkRes.rows[0].count, 10);
+        if (activeCount > 0) {
+            return res.status(400).json({ error: 'No se puede eliminar el taller porque tiene alumnos activos asignados.' });
+        }
+        // Get the course name to delete the related schedule items
+        const courseRes = await query(`SELECT name FROM courses WHERE id = $1`, [id]);
+        if (courseRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Curso no encontrado' });
+        }
+        const courseName = courseRes.rows[0].name;
+        // 2. Delete schedule items related to the course name
+        await query(`DELETE FROM schedule_items WHERE title = $1`, [courseName]);
+        // 3. Delete the course (Cascades to student_courses due to ON DELETE CASCADE)
+        await query(`DELETE FROM courses WHERE id = $1`, [id]);
+        // 4. Log the deletion activity
+        const activityId = `act-${Date.now()}`;
+        const activityRes = await query(`INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, username AS user, user_initials AS "userInitials", action, date_time AS "dateTime", status, type`, [
+            activityId,
+            'Administrador',
+            'AD',
+            `Eliminación del taller: ${courseName}`,
+            'Justo ahora',
+            'Completado',
+            'curso'
+        ]);
+        res.json({ success: true, activity: activityRes.rows[0] });
+    }
+    catch (err) {
+        console.error('Error deleting course:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

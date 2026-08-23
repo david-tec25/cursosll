@@ -413,6 +413,36 @@ export default function App() {
       console.error('Error deleting student:', error);
     }
   };
+  const handleDeleteCourse = async (courseId: string) => {
+    try {
+      const courseToDelete = courses.find(c => c.id === courseId);
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/courses/${courseId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(prev => prev.filter(c => c.id !== courseId));
+        if (courseToDelete) {
+          setScheduleItems(prev => prev.filter(item => item.title !== courseToDelete.name));
+        }
+        setStudents(prev =>
+          prev.map(s => ({
+            ...s,
+            courseIds: (s.courseIds || []).filter(id => id !== courseId)
+          }))
+        );
+        if (data.activity) {
+          setActivities(prev => [data.activity, ...prev]);
+        }
+      } else {
+        const data = await response.json();
+        alert(data.error || 'No se pudo eliminar el taller.');
+      }
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      alert('Error de conexión al intentar eliminar el taller.');
+    }
+  };
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -476,7 +506,9 @@ export default function App() {
         return (
           <CoursesView 
             courses={courses} 
+            students={students}
             onOpenNewModal={() => setIsNewCourseModalOpen(true)} 
+            onDeleteCourse={handleDeleteCourse}
           />
         );
       case 'teachers':

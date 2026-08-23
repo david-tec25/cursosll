@@ -290,6 +290,60 @@ app.put('/api/courses/name/:name', async (req, res) => {
   }
 });
 
+app.delete('/api/courses/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // 1. Check if there are active students enrolled in this course
+    const checkRes = await query(
+      `SELECT COUNT(*) AS count 
+       FROM student_courses sc 
+       JOIN students s ON sc.student_id = s.id 
+       WHERE sc.course_id = $1 AND s.status = 'Activo'`,
+      [id]
+    );
+
+    const activeCount = parseInt(checkRes.rows[0].count, 10);
+    if (activeCount > 0) {
+      return res.status(400).json({ error: 'No se puede eliminar el taller porque tiene alumnos activos asignados.' });
+    }
+
+    // Get the course name to delete the related schedule items
+    const courseRes = await query(`SELECT name FROM courses WHERE id = $1`, [id]);
+    if (courseRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Curso no encontrado' });
+    }
+    const courseName = courseRes.rows[0].name;
+
+    // 2. Delete schedule items related to the course name
+    await query(`DELETE FROM schedule_items WHERE title = $1`, [courseName]);
+
+    // 3. Delete the course (Cascades to student_courses due to ON DELETE CASCADE)
+    await query(`DELETE FROM courses WHERE id = $1`, [id]);
+
+    // 4. Log the deletion activity
+    const activityId = `act-${Date.now()}`;
+    const activityRes = await query(
+      `INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, username AS user, user_initials AS "userInitials", action, date_time AS "dateTime", status, type`,
+      [
+        activityId,
+        'Administrador',
+        'AD',
+        `Eliminación del taller: ${courseName}`,
+        'Justo ahora',
+        'Completado',
+        'curso'
+      ]
+    );
+
+    res.json({ success: true, activity: activityRes.rows[0] });
+  } catch (err: any) {
+    console.error('Error deleting course:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Teachers
 app.get('/api/teachers', async (req, res) => {
   try {

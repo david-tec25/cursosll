@@ -31,6 +31,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
   const [selectedLevel, setSelectedLevel] = useState<string>('primaria');
   const [isSyllabusExpanded, setIsSyllabusExpanded] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -779,30 +784,87 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
             <h3 className="text-xl font-bold text-slate-855 mb-4">¿Tienes alguna duda rápida?</h3>
             <p className="text-xs text-slate-500 mb-6">Completa el formulario rápido y nos pondremos en contacto contigo en menos de 24 horas hábiles.</p>
             
-            <form onSubmit={(e) => { e.preventDefault(); alert('Mensaje enviado correctamente. Nos comunicaremos contigo a la brevedad.'); }} className="space-y-4">
+            <form 
+              onSubmit={async (e) => { 
+                e.preventDefault(); 
+                setIsSubmitting(true);
+                try {
+                  const response = await fetch("https://formsubmit.co/ajax/llcursoschapademota@gmail.com", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                      Nombre: contactName,
+                      Email: contactEmail,
+                      Celular: contactPhone,
+                      Mensaje: contactMessage,
+                      _subject: "Nueva consulta de Asesoría - Impulso Académico"
+                    })
+                  });
+                  
+                  if (response.ok) {
+                    alert("¡Mensaje enviado con éxito! Nos pondremos en contacto contigo a la brevedad.");
+                    // Clear fields
+                    setContactName('');
+                    setContactEmail('');
+                    setContactPhone('');
+                    setContactMessage('');
+                  } else {
+                    alert("Hubo un problema al enviar el mensaje. Por favor, inténtalo de nuevo.");
+                  }
+                } catch (error) {
+                  console.error("Error submitting contact form:", error);
+                  alert("Error de conexión. Por favor, verifica tu red e inténtalo de nuevo.");
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }} 
+              className="space-y-4"
+            >
               <input 
                 type="text" 
                 placeholder="Nombre completo" 
                 required
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all"
+                disabled={isSubmitting}
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all disabled:opacity-60"
               />
               <input 
                 type="email" 
                 placeholder="Correo electrónico" 
                 required
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all"
+                disabled={isSubmitting}
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all disabled:opacity-60"
+              />
+              <input 
+                type="tel" 
+                placeholder="Número de celular" 
+                required
+                disabled={isSubmitting}
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all disabled:opacity-60"
               />
               <textarea 
                 placeholder="¿En qué curso estás interesado?" 
                 rows={3}
                 required
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all resize-none"
+                disabled={isSubmitting}
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all resize-none disabled:opacity-60"
               />
               <button 
                 type="submit" 
-                className="w-full py-3 bg-brand-red text-white font-extrabold text-sm rounded-xl hover:bg-brand-red-hover active:scale-[0.98] transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full py-3 bg-brand-red text-white font-extrabold text-sm rounded-xl hover:bg-brand-red-hover active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Enviar Mensaje
+                {isSubmitting ? 'Enviando...' : 'Enviar Mensaje'}
               </button>
             </form>
           </div>
