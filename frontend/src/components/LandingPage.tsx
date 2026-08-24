@@ -34,7 +34,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
-  const [contactMessage, setContactMessage] = useState('');
+  const [contactCourse, setContactCourse] = useState('');
+  const [contactLevel, setContactLevel] = useState('');
+  const [contactNotes, setContactNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -796,10 +798,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                       "Accept": "application/json"
                     },
                     body: JSON.stringify({
-                      Nombre: contactName,
-                      Email: contactEmail,
-                      Celular: contactPhone,
-                      Mensaje: contactMessage,
+                      "Nombre Completo": contactName,
+                      "Correo Electrónico": contactEmail,
+                      "Número de Celular": contactPhone,
+                      "Curso(s) de Interés": contactCourse,
+                      "Nivel Solicitado": contactLevel,
+                      "Notas Adicionales": contactNotes || "Ninguna",
                       _subject: "Nueva consulta de Asesoría - Impulso Académico"
                     })
                   });
@@ -810,7 +814,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                     setContactName('');
                     setContactEmail('');
                     setContactPhone('');
-                    setContactMessage('');
+                    setContactCourse('');
+                    setContactLevel('');
+                    setContactNotes('');
                   } else {
                     alert("Hubo un problema al enviar el mensaje. Por favor, inténtalo de nuevo.");
                   }
@@ -850,13 +856,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                 onChange={(e) => setContactPhone(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all disabled:opacity-60"
               />
-              <textarea 
-                placeholder="¿En qué curso estás interesado?" 
-                rows={3}
+              <select
+                value={contactCourse}
+                onChange={(e) => setContactCourse(e.target.value)}
                 required
                 disabled={isSubmitting}
-                value={contactMessage}
-                onChange={(e) => setContactMessage(e.target.value)}
+                className={`w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all disabled:opacity-60 ${
+                  contactCourse === '' ? 'text-slate-400' : 'text-slate-800'
+                }`}
+              >
+                <option value="" disabled hidden>Selecciona el curso de interés</option>
+                <option value="Matemáticas">Matemáticas</option>
+                <option value="Taller de Cómputo">Taller de Cómputo</option>
+                <option value="Programación Web">Programación Web</option>
+                <option value="Física">Física</option>
+                <option value="Química">Química</option>
+                <option value="Taller de Tareas / Regularización">Taller de Tareas / Regularización</option>
+                <option value="Otro">Otro (especificar en notas)</option>
+              </select>
+              <select
+                value={contactLevel}
+                onChange={(e) => setContactLevel(e.target.value)}
+                required
+                disabled={isSubmitting}
+                className={`w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all disabled:opacity-60 ${
+                  contactLevel === '' ? 'text-slate-400' : 'text-slate-800'
+                }`}
+              >
+                <option value="" disabled hidden>Selecciona el nivel solicitado</option>
+                <option value="Primaria">Primaria (Básica)</option>
+                <option value="Secundaria">Secundaria (Básica)</option>
+                <option value="Preparatoria / Bachillerato">Preparatoria / Bachillerato (Media Superior)</option>
+                <option value="Universidad / Nivel Superior">Universidad / Nivel Superior</option>
+                <option value="Otro">Otro</option>
+              </select>
+              <textarea 
+                placeholder="Notas adicionales (opcional)" 
+                rows={3}
+                disabled={isSubmitting}
+                value={contactNotes}
+                onChange={(e) => setContactNotes(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all resize-none disabled:opacity-60"
               />
               <button 
@@ -864,7 +903,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                 disabled={isSubmitting}
                 className="w-full py-3 bg-brand-red text-white font-extrabold text-sm rounded-xl hover:bg-brand-red-hover active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Enviando...' : 'Enviar Mensaje'}
+                {isSubmitting ? 'Enviando...' : 'Enviar'}
               </button>
             </form>
           </div>

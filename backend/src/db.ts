@@ -17,6 +17,11 @@ const pool = process.env.DATABASE_URL
       database: process.env.DB_DATABASE || 'impulso_academico',
     });
 
+console.log("[DB] process.env.DATABASE_URL:", process.env.DATABASE_URL);
+console.log("[DB] process.env.DB_HOST:", process.env.DB_HOST);
+console.log("[DB] Using connectionString:", (pool as any).options.connectionString ? "Yes (DATABASE_URL)" : "No (fallback options)");
+
+
 export const query = (text: string, params?: any[]) => {
   return pool.query(text, params);
 };
