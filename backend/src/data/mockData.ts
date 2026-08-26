@@ -212,16 +212,6 @@ export const INITIAL_SCHEDULE: ScheduleItem[] = [
     room: 'Lab Química',
     colorTheme: 'blue',
   },
-  {
-    id: 'sch-6',
-    title: 'Preparación Examen Admisión',
-    teacher: 'Mtra. Liliana Martínez Palacios',
-    dayIndex: 5, // Sábado
-    startTime: '09:00',
-    durationHours: 3.0,
-    room: 'Auditorio Chapa de Mota',
-    colorTheme: 'lime',
-  },
 ];
 
 export const INITIAL_ACTIVITIES: RecentActivityItem[] = [

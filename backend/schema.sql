@@ -144,5 +144,4 @@ INSERT INTO schedule_items (id, title, teacher, day_index, start_time, duration_
 ('sch-1', 'Matemáticas Avanzadas', 'Prof. A. Ramírez', 0, '08:00', 1.5, 'Aula 101', FALSE, NULL, 'navy'),
 ('sch-2', 'Física Cuántica', 'Prof. M. Silva', 1, '09:00', 2.0, 'Individual - Lab 3', TRUE, 'Conflicto de Aula: Solapamiento en Lab 3 con taller práctico.', 'error'),
 ('sch-3', 'Taller de Diseño & Web', 'Prof. L. Torres', 2, '10:00', 1.5, 'Estudio B', FALSE, NULL, 'lime'),
-('sch-4', 'Química General', 'Liliana Silvestre Castillo', 3, '08:30', 1.5, 'Lab Química', FALSE, NULL, 'blue'),
-('sch-6', 'Preparación Examen Admisión', 'Mtra. Liliana Martínez Palacios', 5, '09:00', 3.0, 'Auditorio Chapa de Mota', FALSE, NULL, 'lime');
+('sch-4', 'Química General', 'Liliana Silvestre Castillo', 3, '08:30', 1.5, 'Lab Química', FALSE, NULL, 'blue');
