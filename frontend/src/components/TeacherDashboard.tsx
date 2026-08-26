@@ -29,6 +29,7 @@ interface TeacherDashboardProps {
   students: Student[];
   onAddScheduleItem?: (newItem: ScheduleItem) => void;
   onClearSchedule?: (title: string, teacher: string, weekStartDate: string) => Promise<void>;
+  onRefreshStudents?: () => Promise<void>;
 }
 
 export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
@@ -39,6 +40,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   students,
   onAddScheduleItem,
   onClearSchedule,
+  onRefreshStudents,
 }) => {
   const [scheduleFilter, setScheduleFilter] = useState<'mine' | 'room'>('mine');
   const [dismissedConflictIds, setDismissedConflictIds] = useState<string[]>(() => {
@@ -86,32 +88,70 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const [courseForAttendance, setCourseForAttendance] = useState<Course | null>(null);
   const [attendanceDate, setAttendanceDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [attendanceRecords, setAttendanceRecords] = useState<{[studentId: string]: boolean}>({});
+  const [courseAttendanceList, setCourseAttendanceList] = useState<{ studentId: string; classDate: string; attended: boolean }[]>([]);
 
+  const BACKEND_URL = import.meta.env.DEV
+    ? ''
+    : (import.meta.env.REACT_APP_BACKEND_URL || 'https://cursosll-backend-production.up.railway.app');
+
+  // Load attendance from backend
   useEffect(() => {
     if (!courseForAttendance) return;
-    
-    const key = `attendance_${courseForAttendance.id}_${attendanceDate}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      setAttendanceRecords(JSON.parse(saved));
-    } else {
-      const enrolled = students.filter(s => s.courseIds?.includes(courseForAttendance.id));
-      const initial: {[studentId: string]: boolean} = {};
-      enrolled.forEach(s => {
-        initial[s.id] = true;
-      });
-      setAttendanceRecords(initial);
-    }
+
+    const fetchAttendance = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/attendance/course/${courseForAttendance.id}/date/${attendanceDate}`);
+        if (response.ok) {
+          const data = await response.json();
+          // If backend has no records for this date, initialize with everyone marked as present
+          if (Object.keys(data).length === 0) {
+            const enrolled = students.filter(s => s.courseIds?.includes(courseForAttendance.id));
+            const initial: {[studentId: string]: boolean} = {};
+            enrolled.forEach(s => {
+              initial[s.id] = true;
+            });
+            setAttendanceRecords(initial);
+          } else {
+            setAttendanceRecords(data);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching attendance from backend:', err);
+      }
+    };
+
+    fetchAttendance();
   }, [courseForAttendance, attendanceDate, students]);
 
-  const handleSaveAttendance = () => {
+  const handleSaveAttendance = async () => {
     if (!courseForAttendance) return;
-    
-    const key = `attendance_${courseForAttendance.id}_${attendanceDate}`;
-    localStorage.setItem(key, JSON.stringify(attendanceRecords));
-    
-    alert(`Asistencia guardada con éxito para el día ${attendanceDate}`);
-    setCourseForAttendance(null);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/attendance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          courseId: courseForAttendance.id,
+          classDate: attendanceDate,
+          records: attendanceRecords,
+        }),
+      });
+
+      if (response.ok) {
+        alert(`Asistencia guardada con éxito para el día ${attendanceDate}`);
+        setCourseForAttendance(null);
+        if (onRefreshStudents) {
+          await onRefreshStudents();
+        }
+      } else {
+        alert('Error al guardar la asistencia en el servidor');
+      }
+    } catch (err) {
+      console.error('Error saving attendance:', err);
+      alert('Error al guardar la asistencia');
+    }
   };
 
   // Attendance report states
@@ -133,35 +173,41 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     }
   }, [selectedCourseFilter, courses, currentTeacher, showAttendanceReport]);
 
+  // Load report attendance records from backend
+  useEffect(() => {
+    if (!showAttendanceReport || !reportCourseId) return;
+
+    const fetchReportData = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/attendance/course/${reportCourseId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCourseAttendanceList(data);
+        }
+      } catch (err) {
+        console.error('Error fetching course attendance report:', err);
+      }
+    };
+
+    fetchReportData();
+  }, [showAttendanceReport, reportCourseId]);
+
   const renderAttendanceReportModal = () => {
     if (!showAttendanceReport) return null;
 
     const courseObj = courses.find(c => c.id === reportCourseId);
     const courseName = courseObj ? courseObj.name : '';
     
-    // Find all attendance records in localStorage for this course
-    const attendanceKeys = Object.keys(localStorage).filter(key => key.startsWith(`attendance_${reportCourseId}_`));
-    const totalClasses = attendanceKeys.length;
+    // Calculate total unique class dates in the database
+    const uniqueDates = Array.from(new Set(courseAttendanceList.map(r => r.classDate)));
+    const totalClasses = uniqueDates.length;
 
     const enrolledStudents = students.filter(s => s.courseIds?.includes(reportCourseId));
 
     const stats = enrolledStudents.map(student => {
-      let presents = 0;
-      let absents = 0;
-      
-      attendanceKeys.forEach(key => {
-        try {
-          const records = JSON.parse(localStorage.getItem(key) || '{}');
-          const attended = records[student.id];
-          if (attended === true) {
-            presents++;
-          } else if (attended === false) {
-            absents++;
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      });
+      const studentRecords = courseAttendanceList.filter(r => r.studentId === student.id);
+      const presents = studentRecords.filter(r => r.attended === true).length;
+      const absents = studentRecords.filter(r => r.attended === false).length;
 
       const totalTaken = presents + absents;
       const rate = totalTaken > 0 ? Math.round((presents / totalTaken) * 100) : 100;
@@ -1283,6 +1329,14 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   className="w-full mt-1 p-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold text-gray-800 dark:text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
+
+              {/* Absent Warning Alert */}
+              {Object.values(attendanceRecords).some(v => v === false) && (
+                <div className="flex items-center gap-2.5 p-3.5 bg-red-50/70 dark:bg-red-950/20 border border-red-200/30 dark:border-red-900/30 rounded-2xl text-xs text-red-750 dark:text-red-400 font-extrabold animate-pulse">
+                  <AlertTriangle className="w-4.5 h-4.5 text-red-650 dark:text-red-450 shrink-0 animate-bounce" />
+                  <span>Alerta: Alumno(s) no asistieron en la fecha indicada.</span>
+                </div>
+              )}
 
               {/* Enrolled Students List */}
               <div className="space-y-3">

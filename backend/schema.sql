@@ -80,7 +80,18 @@ CREATE TABLE whatsapp_template (
 CREATE TABLE student_courses (
   student_id VARCHAR(50) REFERENCES students(id) ON DELETE CASCADE,
   course_id VARCHAR(50) REFERENCES courses(id) ON DELETE CASCADE,
+  total_sessions INTEGER DEFAULT 8,
+  completed_sessions INTEGER DEFAULT 0,
   PRIMARY KEY (student_id, course_id)
+);
+
+CREATE TABLE IF NOT EXISTS attendance (
+  id SERIAL PRIMARY KEY,
+  student_id VARCHAR(50) REFERENCES students(id) ON DELETE CASCADE,
+  course_id VARCHAR(50) REFERENCES courses(id) ON DELETE CASCADE,
+  class_date VARCHAR(20) NOT NULL,
+  attended BOOLEAN NOT NULL,
+  UNIQUE(student_id, course_id, class_date)
 );
 
 

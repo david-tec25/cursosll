@@ -5,7 +5,7 @@ import { Search, BookOpen, Check, AlertCircle, Sparkles, User, CheckCircle2 } fr
 interface CourseAssignerProps {
   students: Student[];
   courses: Course[];
-  onAssignCourse: (studentId: string, courseId: string) => Promise<void>;
+  onAssignCourse: (studentId: string, courseId: string, totalSessions?: number) => Promise<void>;
   onRemoveCourse: (studentId: string, courseId: string) => Promise<void>;
 }
 
@@ -20,6 +20,7 @@ export const CourseAssigner: React.FC<CourseAssignerProps> = ({
     students.length > 0 ? students[0] : null
   );
   const [localAssignedIds, setLocalAssignedIds] = useState<string[]>([]);
+  const [localSessions, setLocalSessions] = useState<{[courseId: string]: number}>({});
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const filteredStudents = students.filter(s =>
@@ -37,8 +38,14 @@ export const CourseAssigner: React.FC<CourseAssignerProps> = ({
   useEffect(() => {
     if (activeStudent) {
       setLocalAssignedIds(activeStudent.courseIds || []);
+      const sessionsMap: {[courseId: string]: number} = {};
+      activeStudent.enrollments?.forEach(e => {
+        sessionsMap[e.courseId] = e.totalSessions;
+      });
+      setLocalSessions(sessionsMap);
     } else {
       setLocalAssignedIds([]);
+      setLocalSessions({});
     }
   }, [activeStudent]);
 
@@ -61,7 +68,7 @@ export const CourseAssigner: React.FC<CourseAssignerProps> = ({
         await onRemoveCourse(activeStudent.id, courseId);
         showToast(`Curso "${course.name}" desasignado con éxito`, 'success');
       } else {
-        await onAssignCourse(activeStudent.id, courseId);
+        await onAssignCourse(activeStudent.id, courseId, localSessions[courseId] || 8);
         showToast(`Curso "${course.name}" asignado con éxito`, 'success');
       }
     } catch (err) {
@@ -72,6 +79,26 @@ export const CourseAssigner: React.FC<CourseAssignerProps> = ({
         setLocalAssignedIds(prev => prev.filter(id => id !== courseId));
       }
       showToast('Error al actualizar la asignación', 'error');
+    }
+  };
+
+  const handleSessionsChange = (courseId: string, val: number) => {
+    setLocalSessions(prev => ({
+      ...prev,
+      [courseId]: isNaN(val) ? 8 : val
+    }));
+  };
+
+  const handleSaveSessions = async (courseId: string) => {
+    if (!activeStudent) return;
+    const course = courses.find(c => c.id === courseId);
+    if (!course) return;
+
+    try {
+      await onAssignCourse(activeStudent.id, courseId, localSessions[courseId] || 8);
+      showToast(`Sesiones de "${course.name}" actualizadas con éxito`, 'success');
+    } catch (err) {
+      showToast('Error al actualizar las sesiones', 'error');
     }
   };
 
@@ -199,27 +226,53 @@ export const CourseAssigner: React.FC<CourseAssignerProps> = ({
                     return (
                       <div
                         key={course.id}
-                        onClick={() => handleToggleCourse(course.id)}
-                        className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
+                        className={`flex flex-col p-4 rounded-2xl border transition-all ${
                           isAssigned
-                            ? 'bg-brand-teal/5 border-brand-teal text-brand-teal font-extrabold shadow-3xs'
+                            ? 'bg-brand-teal/5 border-brand-teal text-brand-teal shadow-3xs'
                             : 'bg-[#f7f9fb] dark:bg-gray-850 border-gray-200 dark:border-gray-850 hover:bg-slate-100 text-slate-700 dark:text-gray-200'
                         }`}
                       >
-                        <div className="flex flex-col min-w-0 pr-2">
-                          <span className="text-xs font-bold truncate">{course.name}</span>
-                          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
-                            Docente: {course.teacher} | Aula: {course.room} | Horario: {course.timeSlot}
-                          </span>
+                        <div className="flex items-center justify-between cursor-pointer" onClick={() => handleToggleCourse(course.id)}>
+                          <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-xs font-bold truncate">{course.name}</span>
+                            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
+                              Docente: {course.teacher} | Aula: {course.room} | Horario: {course.timeSlot}
+                            </span>
+                          </div>
+
+                          <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${
+                            isAssigned
+                              ? 'bg-brand-teal text-white'
+                              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                          }`}>
+                            {isAssigned && <Check className="w-4 h-4 stroke-[3]" />}
+                          </div>
                         </div>
 
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${
-                          isAssigned
-                            ? 'bg-brand-teal text-white'
-                            : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600'
-                        }`}>
-                          {isAssigned && <Check className="w-4 h-4 stroke-[3]" />}
-                        </div>
+                        {isAssigned && (
+                          <div className="mt-2.5 pt-2.5 border-t border-brand-teal/20 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-slate-500 font-bold uppercase">Sesiones:</span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={localSessions[course.id] || 8}
+                                onChange={(e) => handleSessionsChange(course.id, parseInt(e.target.value))}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-16 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-xs font-semibold focus:outline-none focus:border-brand-teal text-slate-800 dark:text-white"
+                              />
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveSessions(course.id);
+                              }}
+                              className="px-2.5 py-1 bg-brand-teal hover:bg-brand-teal-hover text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+                            >
+                              Guardar
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })

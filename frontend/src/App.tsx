@@ -418,22 +418,37 @@ export default function App() {
     }
   };
 
-  const handleAssignCourse = async (studentId: string, courseId: string) => {
+  const handleAssignCourse = async (studentId: string, courseId: string, totalSessions?: number) => {
     try {
       const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${studentId}/courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ courseId }),
+        body: JSON.stringify({ courseId, totalSessions }),
       });
       if (response.ok) {
         setStudents(prev =>
-          prev.map(s =>
-            s.id === studentId
-              ? { ...s, courseIds: [...(s.courseIds || []), courseId] }
-              : s
-          )
+          prev.map(s => {
+            if (s.id === studentId) {
+              const hasCourse = s.courseIds?.includes(courseId);
+              const nextCourseIds = hasCourse ? (s.courseIds || []) : [...(s.courseIds || []), courseId];
+              
+              const currentEnrollments = s.enrollments || [];
+              const hasEnrollment = currentEnrollments.some(e => e.courseId === courseId);
+              
+              const nextEnrollments = hasEnrollment
+                ? currentEnrollments.map(e => e.courseId === courseId ? { ...e, totalSessions: totalSessions ?? e.totalSessions } : e)
+                : [...currentEnrollments, { courseId, totalSessions: totalSessions ?? 8, completedSessions: 0 }];
+              
+              return {
+                ...s,
+                courseIds: nextCourseIds,
+                enrollments: nextEnrollments
+              };
+            }
+            return s;
+          })
         );
       } else {
         console.error('Failed to assign course');
@@ -452,7 +467,11 @@ export default function App() {
         setStudents(prev =>
           prev.map(s =>
             s.id === studentId
-              ? { ...s, courseIds: (s.courseIds || []).filter(id => id !== courseId) }
+              ? { 
+                  ...s, 
+                  courseIds: (s.courseIds || []).filter(id => id !== courseId),
+                  enrollments: (s.enrollments || []).filter(e => e.courseId !== courseId)
+                }
               : s
           )
         );
@@ -463,6 +482,19 @@ export default function App() {
       console.error('Error removing course:', error);
     }
   };
+
+  const refreshStudents = async () => {
+    try {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students`);
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(data);
+      }
+    } catch (error) {
+      console.error('Error refreshing students:', error);
+    }
+  };
+
   const handleDeleteStudent = async (studentId: string) => {
     try {
       const studentToDelete = students.find(s => s.id === studentId);
@@ -538,6 +570,7 @@ export default function App() {
             students={students}
             onAddScheduleItem={handleAddScheduleItem}
             onClearSchedule={handleClearScheduleForCourse}
+            onRefreshStudents={refreshStudents}
           />
         );
       case 'student-portal': {

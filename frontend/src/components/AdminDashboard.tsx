@@ -598,8 +598,74 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     );
   };
 
+  const [absences, setAbsences] = useState<{
+    id: number;
+    studentId: string;
+    courseId: string;
+    classDate: string;
+    studentName: string;
+    studentFolio: string;
+    courseName: string;
+    courseTeacher: string;
+  }[]>([]);
+
+  const BACKEND_URL = import.meta.env.DEV
+    ? ''
+    : (import.meta.env.REACT_APP_BACKEND_URL || 'https://cursosll-backend-production.up.railway.app');
+
+  React.useEffect(() => {
+    const fetchAbsences = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/attendance/absences`);
+        if (response.ok) {
+          const data = await response.json();
+          setAbsences(data);
+        }
+      } catch (err) {
+        console.error('Error fetching absences:', err);
+      }
+    };
+    fetchAbsences();
+  }, []);
+
   return (
     <div className="space-y-6 animate-fade-in pb-12">
+      {/* Attendance Absences Alerts */}
+      {absences.length > 0 && (
+        <div className="bg-red-50/70 dark:bg-red-950/20 border-2 border-red-200/50 dark:border-red-900/30 rounded-3xl p-5 mb-6 space-y-3">
+          <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+            <AlertTriangle className="w-5 h-5 animate-bounce shrink-0" />
+            <h3 className="font-extrabold text-sm tracking-wide uppercase">Alertas de Inasistencia</h3>
+            <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">
+              {absences.length}
+            </span>
+          </div>
+          <div className="max-h-40 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+            {absences.slice(0, 5).map((a) => (
+              <div key={a.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-white dark:bg-gray-900 border border-red-150/40 dark:border-red-900/10 rounded-2xl text-xs shadow-3xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0" />
+                  <span className="font-extrabold text-slate-800 dark:text-white">{a.studentName}</span>
+                  <span className="text-gray-400 font-semibold font-mono">#{a.studentFolio}</span>
+                  <span className="text-slate-600 dark:text-gray-400">faltó a <strong className="font-bold text-slate-800 dark:text-white">"{a.courseName}"</strong></span>
+                </div>
+                <div className="flex items-center gap-3 font-medium">
+                  <span className="text-gray-400">Docente: {a.courseTeacher}</span>
+                  <span className="bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200/30 px-2.5 py-0.5 rounded-lg font-extrabold text-[10px]">
+                    {a.classDate}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {absences.length > 5 && (
+              <p className="text-[10px] text-gray-400 font-bold italic text-center pt-1">
+                Y {absences.length - 5} alertas de inasistencia adicionales...
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* KPI Section */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 print:hidden">
         {/* KPI 1 */}

@@ -16,7 +16,12 @@ app.use((req, res, next) => {
 app.get('/api/students', async (req, res) => {
     try {
         const result = await query(`SELECT s.id, s.name, s.email, s.phone, s.folio, s.level, s.status, s.username, s.temp_password AS "tempPassword", s.registered_at AS "registeredAt", s.avatar,
-              COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = s.id), '[]'::json) AS "courseIds"
+              COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = s.id), '[]'::json) AS "courseIds",
+              COALESCE((
+                SELECT json_agg(json_build_object('courseId', sc.course_id, 'totalSessions', sc.total_sessions, 'completedSessions', sc.completed_sessions)) 
+                FROM student_courses sc 
+                WHERE sc.student_id = s.id
+              ), '[]'::json) AS "enrollments"
        FROM students s
        ORDER BY s.registered_at DESC`);
         res.json(result.rows);
@@ -80,7 +85,12 @@ app.put('/api/students/:id/status', async (req, res) => {
        SET status = $1 
        WHERE id = $2 
        RETURNING id, name, email, phone, folio, level, status, username, temp_password AS "tempPassword", registered_at AS "registeredAt", avatar,
-                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds"`, [status, id]);
+                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds",
+                 COALESCE((
+                   SELECT json_agg(json_build_object('courseId', sc.course_id, 'totalSessions', sc.total_sessions, 'completedSessions', sc.completed_sessions)) 
+                   FROM student_courses sc 
+                   WHERE sc.student_id = students.id
+                 ), '[]'::json) AS "enrollments"`, [status, id]);
         if (result.rows.length > 0) {
             res.json(result.rows[0]);
         }
@@ -101,7 +111,12 @@ app.put('/api/students/:id/credentials', async (req, res) => {
        SET username = $1, temp_password = $2, status = $3 
        WHERE id = $4 
        RETURNING id, name, email, phone, folio, level, status, username, temp_password AS "tempPassword", registered_at AS "registeredAt", avatar,
-                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds"`, [username, tempPassword, status, id]);
+                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds",
+                 COALESCE((
+                   SELECT json_agg(json_build_object('courseId', sc.course_id, 'totalSessions', sc.total_sessions, 'completedSessions', sc.completed_sessions)) 
+                   FROM student_courses sc 
+                   WHERE sc.student_id = students.id
+                 ), '[]'::json) AS "enrollments"`, [username, tempPassword, status, id]);
         if (result.rows.length > 0) {
             res.json(result.rows[0]);
         }
@@ -122,7 +137,12 @@ app.put('/api/students/:id', async (req, res) => {
        SET name = $1, email = $2, phone = $3, folio = $4, level = $5, status = $6, username = $7, temp_password = $8, avatar = $9 
        WHERE id = $10 
        RETURNING id, name, email, phone, folio, level, status, username, temp_password AS "tempPassword", registered_at AS "registeredAt", avatar,
-                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds"`, [name, email, phone, folio, level, status, username || null, tempPassword || null, avatar || null, id]);
+                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds",
+                 COALESCE((
+                   SELECT json_agg(json_build_object('courseId', sc.course_id, 'totalSessions', sc.total_sessions, 'completedSessions', sc.completed_sessions)) 
+                   FROM student_courses sc 
+                   WHERE sc.student_id = students.id
+                 ), '[]'::json) AS "enrollments"`, [name, email, phone, folio, level, status, username || null, tempPassword || null, avatar || null, id]);
         if (result.rows.length > 0) {
             // Log recent activity
             const activityId = `act-${Date.now()}`;
@@ -183,14 +203,15 @@ app.delete('/api/students/:id', async (req, res) => {
 });
 app.post('/api/students/:id/courses', async (req, res) => {
     const { id } = req.params;
-    const { courseId } = req.body;
+    const { courseId, totalSessions } = req.body;
     if (!courseId) {
         return res.status(400).json({ error: 'courseId es requerido' });
     }
     try {
-        await query(`INSERT INTO student_courses (student_id, course_id) 
-       VALUES ($1, $2) 
-       ON CONFLICT (student_id, course_id) DO NOTHING`, [id, courseId]);
+        await query(`INSERT INTO student_courses (student_id, course_id, total_sessions) 
+       VALUES ($1, $2, COALESCE($3, 8)) 
+       ON CONFLICT (student_id, course_id) 
+       DO UPDATE SET total_sessions = COALESCE(EXCLUDED.total_sessions, student_courses.total_sessions)`, [id, courseId, totalSessions]);
         res.status(201).json({ success: true });
     }
     catch (err) {
@@ -511,6 +532,85 @@ app.post('/api/whatsapp/template', async (req, res) => {
     }
     catch (err) {
         console.error('Error updating whatsapp template:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+app.get('/api/attendance/course/:courseId', async (req, res) => {
+    const { courseId } = req.params;
+    try {
+        const result = await query(`SELECT student_id AS "studentId", class_date AS "classDate", attended 
+       FROM attendance 
+       WHERE course_id = $1`, [courseId]);
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching course attendance:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// Attendance APIs
+app.get('/api/attendance/course/:courseId/date/:classDate', async (req, res) => {
+    const { courseId, classDate } = req.params;
+    try {
+        const result = await query(`SELECT student_id AS "studentId", attended 
+       FROM attendance 
+       WHERE course_id = $1 AND class_date = $2`, [courseId, classDate]);
+        // Convert array of rows to a dictionary { studentId: boolean }
+        const records = {};
+        result.rows.forEach(row => {
+            records[row.studentId] = row.attended;
+        });
+        res.json(records);
+    }
+    catch (err) {
+        console.error('Error fetching attendance:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+app.post('/api/attendance', async (req, res) => {
+    const { courseId, classDate, records } = req.body;
+    if (!courseId || !classDate || !records) {
+        return res.status(400).json({ error: 'courseId, classDate y records son requeridos' });
+    }
+    try {
+        await query('BEGIN');
+        for (const [studentId, attended] of Object.entries(records)) {
+            // Upsert attendance record
+            await query(`INSERT INTO attendance (student_id, course_id, class_date, attended)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (student_id, course_id, class_date)
+         DO UPDATE SET attended = EXCLUDED.attended`, [studentId, courseId, classDate, attended]);
+            // Update completed sessions count
+            await query(`UPDATE student_courses
+         SET completed_sessions = (
+           SELECT COUNT(*) FROM attendance
+           WHERE student_id = $1 AND course_id = $2 AND attended = TRUE
+         )
+         WHERE student_id = $1 AND course_id = $2`, [studentId, courseId]);
+        }
+        await query('COMMIT');
+        res.json({ success: true });
+    }
+    catch (err) {
+        await query('ROLLBACK');
+        console.error('Error saving attendance:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+app.get('/api/attendance/absences', async (req, res) => {
+    try {
+        const result = await query(`SELECT a.id, a.student_id AS "studentId", a.course_id AS "courseId", a.class_date AS "classDate", a.attended,
+              s.name AS "studentName", s.folio AS "studentFolio",
+              c.name AS "courseName", c.teacher AS "courseTeacher"
+       FROM attendance a
+       JOIN students s ON a.student_id = s.id
+       JOIN courses c ON a.course_id = c.id
+       WHERE a.attended = FALSE
+       ORDER BY a.class_date DESC, s.name ASC`);
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error('Error fetching absences:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

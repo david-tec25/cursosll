@@ -25,6 +25,11 @@ export interface Student {
   registeredAt: string;
   avatar?: string;
   courseIds?: string[];
+  enrollments?: {
+    courseId: string;
+    totalSessions: number;
+    completedSessions: number;
+  }[];
 }
 
 export interface Course {
