@@ -27,7 +27,7 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<'matematicas' | 'computo' | 'programacion'>('matematicas');
+  const [activeCategory, setActiveCategory] = useState<'matematicas' | 'computo'>('matematicas');
   const [selectedLevel, setSelectedLevel] = useState<string>('primaria');
   const [isSyllabusExpanded, setIsSyllabusExpanded] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -221,82 +221,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
           ]
         }
       }
-    },
-    programacion: {
-      title: 'Programación Web',
-      icon: 'code',
-      levels: {
-        basico: {
-          title: 'Programación Web - Básico',
-          instructor: 'Lic. Victor David Maya Arce',
-          role: 'Lic. en Informática',
-          avatar: '/victor_david.jpg',
-          duration: '40 horas de fundamentos front',
-          levelName: 'Media Superior',
-          description: 'Aprende los pilares del desarrollo web moderno: estructura con HTML5, estilos con CSS3 y interactividad inicial con JavaScript.',
-          badge: 'Frontend Starter',
-          topics: [
-            'Introducción al desarrollo web y arquitectura cliente-servidor',
-            'Maquetado semántico con HTML5',
-            'Estilos visuales con CSS3',
-            'Fundamentos de diseño responsivo (media queries)',
-            'Layouts modernos con Flexbox',
-            'JavaScript elemental (variables, tipos de datos, operadores)',
-            'Estructuras de control (condicionales y bucles en JS)',
-            'Introducción a la manipulación del DOM',
-            'Depuración usando herramientas de desarrollador en el navegador',
-            'Despliegue de sitios web estáticos en la nube (GitHub Pages/Vercel)'
-          ]
-        },
-        intermedio: {
-          title: 'Programación Web - Intermedio',
-          instructor: 'Lic. Victor David Maya Arce',
-          role: 'Lic. en Informática',
-          avatar: '/victor_david.jpg',
-          duration: '48 horas de interactividad y Git',
-          levelName: 'Nivel Superior',
-          description: 'Domina layouts avanzados con CSS Grid, asincronía en JavaScript, consumo de APIs REST y control de versiones profesional con Git.',
-          badge: 'Desarrollador Junior',
-          topics: [
-            'Layouts avanzados con CSS Grid',
-            'Estructuras de datos y manipulación de Arrays y Objetos en JS',
-            'Programación asíncrona (Promesas, Fetch API y Async/Await)',
-            'Control de versiones con Git y GitHub (commits, ramas)',
-            'Consumo de REST APIs públicas e integración con la interfaz',
-            'Introducción a TailwindCSS y preprocesadores',
-            'Conceptos fundamentales de Bases de Datos Relacionales y SQL',
-            'Manejo de paquetes con npm',
-            'Creación y validación de formularios dinámicos',
-            'Introducción al SEO técnico y rendimiento de carga'
-          ]
-        },
-        avanzado: {
-          title: 'Programación Web - Avanzado',
-          instructor: 'Lic. Victor David Maya Arce',
-          role: 'Lic. en Informática',
-          avatar: '/victor_david.jpg',
-          duration: '60 horas de stack moderno',
-          levelName: 'Nivel Superior',
-          description: 'Crea aplicaciones completas Single Page App utilizando React, backend en Node.js/Express, seguridad JWT y despliegue en producción.',
-          badge: 'Fullstack Ready',
-          topics: [
-            'Introducción a Single Page Applications (React.js / Next.js)',
-            'Ciclo de vida y hooks esenciales (useState, useEffect)',
-            'Enrutamiento y paso de parámetros (React Router)',
-            'Desarrollo backend con Node.js y Express',
-            'Diseño y construcción de una API RESTful propia',
-            'Integración fullstack con bases de datos (PostgreSQL/MongoDB)',
-            'Autenticación y autorización mediante JSON Web Tokens (JWT)',
-            'Despliegue de aplicaciones dinámicas (Vercel, Render)',
-            'Pruebas unitarias básicas para JavaScript',
-            'Optimización web avanzada (lazy loading, caché, CDNs)'
-          ]
-        }
-      }
     }
   };
 
-  const handleCategoryChange = (category: 'matematicas' | 'computo' | 'programacion') => {
+  const handleCategoryChange = (category: 'matematicas' | 'computo') => {
     setActiveCategory(category);
     setSelectedLevel(category === 'matematicas' ? 'primaria' : 'basico');
     setIsSyllabusExpanded(false);
@@ -324,7 +252,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
             <a href="#inicio" className="hover:text-brand-red transition-colors">Inicio</a>
             <a href="#nosotros" className="hover:text-brand-red transition-colors">Quiénes Somos</a>
             <a href="#cursos" className="hover:text-brand-red transition-colors">Cursos y Talleres</a>
-            <a href="#desarrollo" className="hover:text-brand-red transition-colors">Desarrollo de Software</a>
             <a href="#contacto" className="hover:text-brand-red transition-colors">Contacto</a>
           </nav>
 
@@ -448,7 +375,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                 Especialidades y Talleres L&L
               </h3>
               <p className="text-slate-650 text-sm max-w-xl">
-                Explora nuestros temarios detallados para regularización y capacitación en Matemáticas, Cómputo y Programación Web.
+                Explora nuestros temarios detallados para regularización y capacitación en Matemáticas y Cómputo.
               </p>
             </div>
             <button 
@@ -462,7 +389,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
 
           {/* Category Switcher Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-8 max-w-3xl mx-auto">
-            {(['matematicas', 'computo', 'programacion'] as const).map((cat) => {
+            {(['matematicas', 'computo'] as const).map((cat) => {
               const isActive = activeCategory === cat;
               return (
                 <button
@@ -476,10 +403,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                 >
                   {cat === 'matematicas' ? (
                     <Calculator className="w-4.5 h-4.5" />
-                  ) : cat === 'computo' ? (
-                    <Laptop className="w-4.5 h-4.5" />
                   ) : (
-                    <Code className="w-4.5 h-4.5" />
+                    <Laptop className="w-4.5 h-4.5" />
                   )}
                   <span>{programsData[cat].title}</span>
                 </button>
@@ -626,7 +551,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
               Los programas listados arriba representan <strong>propuestas de temarios base</strong> para estructurar tu aprendizaje. Sin embargo, nuestro catálogo de servicios es mucho más amplio:
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 border-t border-slate-200 text-xs text-slate-500">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200 text-xs text-slate-500">
               <div className="space-y-1.5">
                 <h5 className="font-bold text-slate-850 uppercase text-[11px] flex items-center gap-1.5">
                   <Calculator className="w-3.5 h-3.5 text-brand-red" />
@@ -646,91 +571,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                   El catálogo en cómputo abarca desde paquetería de oficina tradicional y herramientas digitales cotidianas, hasta seminarios prácticos de <strong className="text-slate-700">IA Generativa para Docentes</strong>.
                 </p>
               </div>
-
-              <div className="space-y-1.5">
-                <h5 className="font-bold text-slate-850 uppercase text-[11px] flex items-center gap-1.5">
-                  <Code className="w-3.5 h-3.5 text-brand-red" />
-                  <span>Tecnología y Bases de Datos</span>
-                </h5>
-                <p className="leading-relaxed">
-                  En programación web, complementamos tu formación con el manejo profundo de motores de bases de datos como <strong className="text-slate-700">PostgreSQL, Oracle, MySQL, MongoDB, SQL Server 2025</strong> y más.
-                </p>
-              </div>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Custom Software Development Section */}
-      <section id="desarrollo" className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-slate-50 border-t border-slate-150 relative overflow-hidden">
-        {/* Glow decoration */}
-        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[60%] rounded-full bg-brand-teal/5 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-brand-red/5 blur-[120px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-          {/* Text and Features */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-red/10 border border-brand-red/20 rounded-full text-xs font-semibold text-brand-red">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Desarrollo de Software a la Medida</span>
-            </div>
-            
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
-              Soluciones Digitales para Escuelas, Negocios y PyMEs
-            </h2>
-            
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Creamos software robusto, personalizado y escalable diseñado específicamente para resolver las necesidades operativas de tu institución educativa o empresa. Desde sistemas de gestión escolar hasta plataformas web y automatización de procesos para PyMEs.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-              <div className="bg-white border border-slate-200/60 rounded-2xl p-4 space-y-2 hover:border-brand-red/50 transition-colors">
-                <div className="text-brand-red font-extrabold text-xs uppercase tracking-wider">🏫 Para Escuelas</div>
-                <p className="text-xs text-slate-500 leading-relaxed">Portales de administración, control escolar, gestión de alumnos y facturación integrada.</p>
-              </div>
-              <div className="bg-white border border-slate-200/60 rounded-2xl p-4 space-y-2 hover:border-brand-red/50 transition-colors">
-                <div className="text-brand-red font-extrabold text-xs uppercase tracking-wider">🏢 Para Negocios</div>
-                <p className="text-xs text-slate-500 leading-relaxed">Sistemas de ventas (POS), control de inventarios, reportes analíticos y CRM a medida.</p>
-              </div>
-              <div className="bg-white border border-slate-200/60 rounded-2xl p-4 space-y-2 hover:border-brand-red/50 transition-colors">
-                <div className="text-brand-red font-extrabold text-xs uppercase tracking-wider">📈 Para PyMEs</div>
-                <p className="text-xs text-slate-500 leading-relaxed">Digitalización de flujos de trabajo, automatización de tareas y desarrollo de apps web a la medida.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Instructor/Developer Card */}
-          <div className="lg:col-span-4 flex justify-center">
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 w-full max-w-sm flex flex-col items-center text-center space-y-4 hover:border-brand-red/40 hover:shadow-xl transition-all shadow-lg shadow-slate-100/60">
-              <div className="relative">
-                <img
-                  src="/victor_david.jpg"
-                  alt="Lic. Victor David Maya Arce"
-                  className="w-24 h-24 rounded-2xl object-cover border-2 border-brand-red shadow-lg"
-                />
-                <div className="absolute -bottom-1 -right-1 bg-brand-red text-white rounded-full p-1 shadow-md">
-                  <Code className="w-4 h-4 stroke-[2.5]" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base text-slate-800">Lic. Victor David Maya Arce</h3>
-                <p className="text-xs font-bold text-brand-red mt-0.5">Líder de Desarrollo de Software</p>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">Lic. en Informática</p>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Especialista en desarrollo fullstack, diseño de bases de datos relacionales y optimización de infraestructura en la nube para proyectos institucionales y empresariales.
-              </p>
-              <a
-                href="#contacto"
-                className="w-full py-2.5 bg-brand-red hover:bg-brand-red-hover text-white font-extrabold text-xs rounded-xl transition-all shadow-md shadow-brand-red/10 text-center"
-              >
-                Cotizar Proyecto a la Medida
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Contact Section */}
       <section id="contacto" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-slate-50 border-t border-slate-100">
@@ -868,7 +715,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
                 <option value="" disabled hidden>Selecciona el curso de interés</option>
                 <option value="Matemáticas">Matemáticas</option>
                 <option value="Taller de Cómputo">Taller de Cómputo</option>
-                <option value="Programación Web">Programación Web</option>
                 <option value="Física">Física</option>
                 <option value="Química">Química</option>
                 <option value="Taller de Tareas / Regularización">Taller de Tareas / Regularización</option>
