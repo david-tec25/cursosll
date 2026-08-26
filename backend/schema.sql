@@ -102,7 +102,6 @@ INSERT INTO students (id, name, email, phone, folio, level, status, username, te
 
 -- Insert Initial Courses
 INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot, icon_name, description) VALUES
-('c-1', 'Física Avanzada', 'Dr. Roberto Sánchez', 'Media Superior', 75, 'Activo', 'Aula 302', '10:00 AM', 'science', 'Principios de mecánica, termodinámica y óptica para bachillerato y examen de admisión.'),
 ('c-2', 'Cálculo Integral', 'Mtra. Elena Gómez', 'Media Superior', 40, 'Activo', 'Lab B', '13:30 PM', 'calculate', 'Métodos de integración, aplicaciones del cálculo diferencial e integral.'),
 ('c-3', 'Matemáticas Avanzadas', 'Prof. A. Ramírez', 'Nivel Superior', 90, 'Activo', 'Aula 101', '08:00 AM', 'functions', 'Álgebra lineal, ecuaciones diferenciales y geometría analítica.'),
 ('c-5', 'Química General e Inorgánica', 'Liliana Silvestre Castillo', 'Básica', 85, 'Activo', 'Lab Química', '11:00 AM', 'flask', 'Estructura atómica, enlaces químicos, estequiometría y tabla periódica.'),
@@ -110,7 +109,6 @@ INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot
 
 -- Insert Student Courses (Enrolled in courses)
 INSERT INTO student_courses (student_id, course_id) VALUES
-('st-1', 'c-1'),
 ('st-1', 'c-2'),
 ('st-2', 'c-3'),
 ('st-5', 'c-5');
@@ -142,6 +140,5 @@ Si tienes alguna duda, responde a este mensaje. ¡Mucho éxito en tus clases!'
 -- Insert Initial Schedule Items
 INSERT INTO schedule_items (id, title, teacher, day_index, start_time, duration_hours, room, has_conflict, conflict_details, color_theme) VALUES
 ('sch-1', 'Matemáticas Avanzadas', 'Prof. A. Ramírez', 0, '08:00', 1.5, 'Aula 101', FALSE, NULL, 'navy'),
-('sch-2', 'Física Cuántica', 'Prof. M. Silva', 1, '09:00', 2.0, 'Individual - Lab 3', TRUE, 'Conflicto de Aula: Solapamiento en Lab 3 con taller práctico.', 'error'),
 ('sch-3', 'Taller de Diseño & Web', 'Prof. L. Torres', 2, '10:00', 1.5, 'Estudio B', FALSE, NULL, 'lime'),
 ('sch-4', 'Química General', 'Liliana Silvestre Castillo', 3, '08:30', 1.5, 'Lab Química', FALSE, NULL, 'blue');

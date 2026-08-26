@@ -13,6 +13,9 @@ const pool = process.env.DATABASE_URL
         port: parseInt(process.env.DB_PORT || '5432'),
         database: process.env.DB_DATABASE || 'impulso_academico',
     });
+console.log("[DB] process.env.DATABASE_URL:", process.env.DATABASE_URL);
+console.log("[DB] process.env.DB_HOST:", process.env.DB_HOST);
+console.log("[DB] Using connectionString:", pool.options.connectionString ? "Yes (DATABASE_URL)" : "No (fallback options)");
 export const query = (text, params) => {
     return pool.query(text, params);
 };

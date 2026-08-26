@@ -3,6 +3,7 @@ import { Student, AcademicLevel, Course } from '../types';
 import { CredentialGenerator } from './CredentialGenerator';
 import { CourseAssignmentModal } from './CourseAssignmentModal';
 import { CourseAssigner } from './CourseAssigner';
+import { EditStudentModal } from './EditStudentModal';
 import { 
   Search, 
   UserPlus, 
@@ -16,7 +17,8 @@ import {
   UserCheck,
   X,
   Copy,
-  Trash2
+  Trash2,
+  Pencil
 } from 'lucide-react';
 
 interface StudentsDashboardProps {
@@ -32,6 +34,7 @@ interface StudentsDashboardProps {
   onAssignCourse: (studentId: string, courseId: string) => Promise<void>;
   onRemoveCourse: (studentId: string, courseId: string) => Promise<void>;
   onDeleteStudent: (studentId: string) => Promise<void>;
+  onUpdateStudent: (updatedStudent: Student) => Promise<boolean>;
 }
 
 export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
@@ -42,6 +45,7 @@ export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
   onAssignCourse,
   onRemoveCourse,
   onDeleteStudent,
+  onUpdateStudent,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'directory' | 'assign' | 'credentials'>('directory');
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,6 +56,7 @@ export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
   const [viewingCredentialsStudent, setViewingCredentialsStudent] = useState<Student | null>(null);
   const [copiedText, setCopiedText] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   const handleCopyCredentials = (student: Student) => {
     const text = `Usuario: ${student.username}\nContraseña: ${student.tempPassword}`;
@@ -293,6 +298,14 @@ export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
                                 <BookOpen className="w-3.5 h-3.5 text-brand-teal" />
                                 <span>Asignar ({assignedCoursesCount})</span>
                               </button>
+
+                              <button
+                                onClick={() => setEditingStudent(s)}
+                                className="inline-flex items-center justify-center p-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-950/40 text-blue-650 dark:text-blue-400 rounded-xl border border-blue-200/50 dark:border-blue-900/30 transition-all cursor-pointer shadow-3xs"
+                                title="Modificar Datos"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
                               
                               <button
                                 onClick={() => {
@@ -408,6 +421,15 @@ export const StudentsDashboard: React.FC<StudentsDashboardProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {editingStudent && (
+        <EditStudentModal
+          isOpen={!!editingStudent}
+          onClose={() => setEditingStudent(null)}
+          student={editingStudent}
+          onUpdateStudent={onUpdateStudent}
+        />
       )}
     </div>
   );

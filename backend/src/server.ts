@@ -141,6 +141,47 @@ app.put('/api/students/:id/credentials', async (req, res) => {
   }
 });
 
+app.put('/api/students/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone, folio, level, status, username, tempPassword, avatar } = req.body;
+
+  try {
+    const result = await query(
+      `UPDATE students 
+       SET name = $1, email = $2, phone = $3, folio = $4, level = $5, status = $6, username = $7, temp_password = $8, avatar = $9 
+       WHERE id = $10 
+       RETURNING id, name, email, phone, folio, level, status, username, temp_password AS "tempPassword", registered_at AS "registeredAt", avatar,
+                 COALESCE((SELECT json_agg(sc.course_id) FROM student_courses sc WHERE sc.student_id = students.id), '[]'::json) AS "courseIds"`,
+      [name, email, phone, folio, level, status, username || null, tempPassword || null, avatar || null, id]
+    );
+
+    if (result.rows.length > 0) {
+      // Log recent activity
+      const activityId = `act-${Date.now()}`;
+      const activityRes = await query(
+        `INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7) 
+         RETURNING id, username AS user, user_initials AS "userInitials", action, date_time AS "dateTime", status, type`,
+        [
+          activityId,
+          'Administrador',
+          'AD',
+          `Modificación del alumno: ${name}`,
+          'Justo ahora',
+          'Completado',
+          'registro'
+        ]
+      );
+      res.json({ success: true, student: result.rows[0], activity: activityRes.rows[0] });
+    } else {
+      res.status(404).json({ error: 'Estudiante no encontrado' });
+    }
+  } catch (err: any) {
+    console.error('Error updating student:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.delete('/api/students/:id', async (req, res) => {
   const { id } = req.params;
 

@@ -65,18 +65,6 @@ export const INITIAL_STUDENTS: Student[] = [
 
 export const INITIAL_COURSES: Course[] = [
   {
-    id: 'c-1',
-    name: 'Física Avanzada',
-    teacher: 'Dr. Roberto Sánchez',
-    level: 'Media Superior',
-    progress: 75,
-    status: 'Activo',
-    room: 'Aula 302',
-    timeSlot: '10:00 AM',
-    iconName: 'science',
-    description: 'Principios de mecánica, termodinámica y óptica para bachillerato y examen de admisión.',
-  },
-  {
     id: 'c-2',
     name: 'Cálculo Integral',
     teacher: 'Mtra. Elena Gómez',
@@ -179,18 +167,6 @@ export const INITIAL_SCHEDULE: ScheduleItem[] = [
     durationHours: 1.5,
     room: 'Aula 101',
     colorTheme: 'navy',
-  },
-  {
-    id: 'sch-2',
-    title: 'Física Cuántica',
-    teacher: 'Prof. M. Silva',
-    dayIndex: 1, // Martes
-    startTime: '09:00',
-    durationHours: 2.0,
-    room: 'Individual - Lab 3',
-    hasConflict: true,
-    conflictDetails: 'Conflicto de Aula: Solapamiento en Lab 3 con taller práctico.',
-    colorTheme: 'error',
   },
   {
     id: 'sch-3',

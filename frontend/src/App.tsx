@@ -180,6 +180,32 @@ export default function App() {
     }
   };
 
+  const handleUpdateStudent = async (updatedStudent: Student): Promise<boolean> => {
+    try {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${updatedStudent.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedStudent),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(prev => prev.map(s => s.id === updatedStudent.id ? data.student : s));
+        if (data.activity) {
+          setActivities(prev => [data.activity, ...prev]);
+        }
+        return true;
+      } else {
+        console.error('Failed to update student');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating student:', error);
+      return false;
+    }
+  };
+
   const handleAddScheduleItem = async (newItem: ScheduleItem) => {
     try {
       const response = await fetch(`${REACT_APP_BACKEND_URL}/api/schedule`, {
@@ -535,6 +561,7 @@ export default function App() {
             onAssignCourse={handleAssignCourse}
             onRemoveCourse={handleRemoveCourse}
             onDeleteStudent={handleDeleteStudent}
+            onUpdateStudent={handleUpdateStudent}
           />
         );
       case 'whatsapp':
