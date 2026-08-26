@@ -106,7 +106,7 @@ INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot
 ('c-2', 'Cálculo Integral', 'Mtra. Elena Gómez', 'Media Superior', 40, 'Activo', 'Lab B', '13:30 PM', 'calculate', 'Métodos de integración, aplicaciones del cálculo diferencial e integral.'),
 ('c-3', 'Matemáticas Avanzadas', 'Prof. A. Ramírez', 'Nivel Superior', 90, 'Activo', 'Aula 101', '08:00 AM', 'functions', 'Álgebra lineal, ecuaciones diferenciales y geometría analítica.'),
 ('c-5', 'Química General e Inorgánica', 'Liliana Silvestre Castillo', 'Básica', 85, 'Activo', 'Lab Química', '11:00 AM', 'flask', 'Estructura atómica, enlaces químicos, estequiometría y tabla periódica.'),
-('c-6', 'Taller de Tareas y Asesorías', 'Mtra. Liliana Martínez Palacios', 'Básica', 50, 'Activo', 'Aula Multiusos', '15:00 PM', 'book', 'Refuerzo escolar personalizado para educación básica y media superior.');
+('c-6', 'Taller de Tareas y Asesorías', 'Liliana Silvestre Castillo', 'Básica', 50, 'Activo', 'Aula Multiusos', '15:00 PM', 'book', 'Refuerzo escolar personalizado para educación básica y media superior.');
 
 -- Insert Student Courses (Enrolled in courses)
 INSERT INTO student_courses (student_id, course_id) VALUES

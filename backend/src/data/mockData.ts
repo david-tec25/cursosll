@@ -115,7 +115,7 @@ export const INITIAL_COURSES: Course[] = [
   {
     id: 'c-6',
     name: 'Taller de Tareas y Asesorías',
-    teacher: 'Mtra. Liliana Martínez Palacios',
+    teacher: 'Liliana Silvestre Castillo',
     level: 'Básica',
     progress: 50,
     status: 'Activo',
