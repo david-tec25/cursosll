@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Course, AcademicLevel, Student } from '../types';
-import { BookOpen, Search, User, MapPin, Clock, Plus, ArrowRight, Trash2 } from 'lucide-react';
+import { BookOpen, Search, User, MapPin, Clock, Plus, ArrowRight, Trash2, Edit } from 'lucide-react';
 
 interface CoursesViewProps {
   courses: Course[];
   students: Student[];
   onOpenNewModal: () => void;
   onDeleteCourse: (courseId: string) => Promise<void>;
+  onOpenEditModal: (course: Course) => void;
 }
 
-export const CoursesView: React.FC<CoursesViewProps> = ({ courses, students, onOpenNewModal, onDeleteCourse }) => {
+export const CoursesView: React.FC<CoursesViewProps> = ({ courses, students, onOpenNewModal, onDeleteCourse, onOpenEditModal }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [levelFilter, setLevelFilter] = useState<AcademicLevel | 'Todos'>('Todos');
 
@@ -142,7 +143,16 @@ export const CoursesView: React.FC<CoursesViewProps> = ({ courses, students, onO
               </div>
 
               {/* Right Section: Actions */}
-              <div className="flex items-center justify-end shrink-0 pl-2">
+              <div className="flex items-center justify-end shrink-0 pl-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onOpenEditModal(course)}
+                  className="inline-flex items-center justify-center p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 dark:hover:bg-gray-750 text-slate-700 dark:text-gray-300 transition-all cursor-pointer shadow-3xs hover:scale-105"
+                  title="Modificar Taller"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+
                 <button
                   onClick={() => {
                     if (!hasActiveStudents) {

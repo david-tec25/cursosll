@@ -16,6 +16,7 @@ import { SettingsView } from './components/SettingsView';
 import { NewRegistrationModal } from './components/NewRegistrationModal';
 import { TeacherDashboard } from './components/TeacherDashboard';
 import { NewCourseModal } from './components/NewCourseModal';
+import { EditCourseModal } from './components/EditCourseModal';
 
 const REACT_APP_BACKEND_URL = import.meta.env.DEV
   ? ''
@@ -91,6 +92,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isNewCourseModalOpen, setIsNewCourseModalOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Fetch initial data from backend
@@ -346,6 +348,50 @@ export default function App() {
     }
   };
 
+  const handleEditCourse = async (courseId: string, updatedCourse: Course, assignedStudentIds: string[]) => {
+    try {
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/api/courses/${courseId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...updatedCourse,
+          studentIds: assignedStudentIds
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const savedCourse = data.course;
+        
+        // Update courses list
+        setCourses(prev => prev.map(c => c.id === courseId ? savedCourse : c));
+        
+        // Update students list courseIds
+        setStudents(prev => prev.map(s => {
+          const isEnrolled = assignedStudentIds.includes(s.id);
+          const currentCourseIds = s.courseIds || [];
+          const hasCourse = currentCourseIds.includes(courseId);
+          
+          if (isEnrolled && !hasCourse) {
+            return { ...s, courseIds: [...currentCourseIds, courseId] };
+          } else if (!isEnrolled && hasCourse) {
+            return { ...s, courseIds: currentCourseIds.filter(id => id !== courseId) };
+          }
+          return s;
+        }));
+
+        if (data.activity) {
+          setActivities(prev => [data.activity, ...prev]);
+        }
+      } else {
+        console.error('Failed to edit course');
+      }
+    } catch (error) {
+      console.error('Error editing course:', error);
+    }
+  };
+
   const handleAssignCourse = async (studentId: string, courseId: string) => {
     try {
       const response = await fetch(`${REACT_APP_BACKEND_URL}/api/students/${studentId}/courses`, {
@@ -509,6 +555,7 @@ export default function App() {
             students={students}
             onOpenNewModal={() => setIsNewCourseModalOpen(true)} 
             onDeleteCourse={handleDeleteCourse}
+            onOpenEditModal={(course) => setEditingCourse(course)}
           />
         );
       case 'teachers':
@@ -589,6 +636,18 @@ export default function App() {
           onClose={() => setIsNewCourseModalOpen(false)}
           onAddCourse={handleAddCourse}
           teachers={teachers}
+        />
+      )}
+
+      {/* Edit Course Modal */}
+      {editingCourse && (
+        <EditCourseModal
+          isOpen={!!editingCourse}
+          onClose={() => setEditingCourse(null)}
+          course={editingCourse}
+          onEditCourse={handleEditCourse}
+          teachers={teachers}
+          students={students}
         />
       )}
     </div>
