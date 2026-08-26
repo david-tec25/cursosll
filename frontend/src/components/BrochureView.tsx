@@ -16,8 +16,6 @@ export const BrochureView: React.FC = () => {
     { name: 'Inglés', icon: Languages },
     { name: 'Taller de tareas', icon: BookOpen },
     { name: 'Preparación para examen de admisión', icon: Target },
-    { name: 'Programación Web', icon: Code },
-    { name: 'Bases de Datos', icon: Database },
   ];
 
   const handleOpenWhatsApp = () => {
@@ -119,11 +117,6 @@ export const BrochureView: React.FC = () => {
               <div className="p-2.5 bg-white/10 rounded-xl border border-white/10">
                 <p className="text-brand-red font-bold text-[10px] uppercase">Asesorías & Examen Admisión</p>
                 <p className="font-bold text-sm text-white">Mtra. Liliana Martínez Palacios</p>
-              </div>
-
-              <div className="p-2.5 bg-white/10 rounded-xl border border-white/10">
-                <p className="text-brand-red font-bold text-[10px] uppercase">Programación Impartida por</p>
-                <p className="font-bold text-sm text-white">Lic. Victor David Maya Arce</p>
               </div>
             </div>
           </div>

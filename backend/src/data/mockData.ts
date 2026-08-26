@@ -101,18 +101,6 @@ export const INITIAL_COURSES: Course[] = [
     description: 'Álgebra lineal, ecuaciones diferenciales y geometría analítica.',
   },
   {
-    id: 'c-4',
-    name: 'Programación Web & Bases de Datos',
-    teacher: 'Lic. Victor David Maya Arce',
-    level: 'Nivel Superior',
-    progress: 60,
-    status: 'Activo',
-    room: 'Lab Computación',
-    timeSlot: '16:00 PM',
-    iconName: 'code',
-    description: 'Desarrollo web moderno con HTML, CSS, JavaScript, React y diseño de bases de datos.',
-  },
-  {
     id: 'c-5',
     name: 'Química General e Inorgánica',
     teacher: 'Liliana Silvestre Castillo',
@@ -158,16 +146,6 @@ export const INITIAL_TEACHERS: Teacher[] = [
     phone: '55-4713-0833',
     avatar: '/liliana_palacios.jpg',
     subjects: ['Taller de tareas', 'Inglés', 'Comprensión Lectora'],
-  },
-  {
-    id: 't-3',
-    name: 'Lic. Victor David Maya Arce',
-    title: 'Lic. en Informática',
-    specialty: 'Programación Web, Bases de Datos & Herramientas Digitales',
-    email: 'llcursoschapademota@gmail.com',
-    phone: '55-1414-8765',
-    avatar: '/victor_david.jpg',
-    subjects: ['Programación Web', 'Bases de Datos', 'Uso de Dispositivos Electrónicos'],
   },
   {
     id: 't-4',
@@ -233,16 +211,6 @@ export const INITIAL_SCHEDULE: ScheduleItem[] = [
     durationHours: 1.5,
     room: 'Lab Química',
     colorTheme: 'blue',
-  },
-  {
-    id: 'sch-5',
-    title: 'Programación Web',
-    teacher: 'Lic. Victor David Maya Arce',
-    dayIndex: 4, // Viernes
-    startTime: '10:00',
-    durationHours: 2.0,
-    room: 'Lab A',
-    colorTheme: 'navy',
   },
   {
     id: 'sch-6',

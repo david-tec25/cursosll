@@ -271,8 +271,7 @@ export const ScheduleManager: React.FC<ScheduleManagerProps> = ({
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {[
             { name: 'Mtra. Liliana Martínez Palacios', label: '1. Mtra. Liliana Martínez' },
-            { name: 'Ing. Liliana Silvestre Castillo', label: '2. Ing. Liliana Silvestre' },
-            { name: 'Lic. Victor David Maya Arce', label: '3. Lic. Victor David Maya' }
+            { name: 'Ing. Liliana Silvestre Castillo', label: '2. Ing. Liliana Silvestre' }
           ].map((t) => {
             const isActive = selectedTeacherFilter === t.name;
             return (

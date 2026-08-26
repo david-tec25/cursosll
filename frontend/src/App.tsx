@@ -72,7 +72,7 @@ export default function App() {
       setCurrentUser(username);
       localStorage.setItem('username', username);
     } else {
-      const defaultUser = role === 'student' ? 'ana.garcial.ms' : role === 'teacher' ? 'victor.maya' : 'admin';
+      const defaultUser = role === 'student' ? 'ana.garcial.ms' : role === 'teacher' ? 'liliana.martinez' : 'admin';
       setCurrentUser(defaultUser);
       localStorage.setItem('username', defaultUser);
     }

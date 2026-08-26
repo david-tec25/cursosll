@@ -90,8 +90,7 @@ CREATE TABLE student_courses (
 -- Insert Initial Teachers
 INSERT INTO teachers (id, name, title, specialty, email, phone, avatar, subjects, room, username, temp_password) VALUES
 ('t-1', 'Ing. Liliana Silvestre Castillo', 'Ing. en Química', 'Química General, Inorgánica, Orgánica y Matemáticas', 'llcursoschapademota@gmail.com', '55-1414-8765', '/liliana_silvestre.jpg', ARRAY['Química', 'Ciencias Naturales', 'Experimentos de Laboratorio', 'Matemáticas'], 'Lab Química', 'liliana.silvestre', 'liliana123'),
-('t-2', 'Mtra. Liliana Martínez Palacios', 'Maestra en Ciencias de la Educación', 'Preparación para examen de admisión, Computación & Taller de Tareas', 'llcursoschapademota@gmail.com', '55-4713-0833', '/liliana_palacios.jpg', ARRAY['Taller de tareas', 'Inglés', 'Comprensión Lectora', 'Computación Básica'], 'Aula Multiusos', 'liliana.martinez', 'martinez123'),
-('t-3', 'Lic. Victor David Maya Arce', 'Lic. en Informática', 'Programación Web, Bases de Datos & Herramientas Digitales', 'llcursoschapademota@gmail.com', '55-1414-8765', '/victor_david.jpg', ARRAY['Programación Web', 'Bases de Datos', 'Uso de Dispositivos Electrónicos', 'Computación Avanzada'], 'Lab Computación', 'victor.maya', 'victor123');
+('t-2', 'Mtra. Liliana Martínez Palacios', 'Maestra en Ciencias de la Educación', 'Preparación para examen de admisión, Computación & Taller de Tareas', 'llcursoschapademota@gmail.com', '55-4713-0833', '/liliana_palacios.jpg', ARRAY['Taller de tareas', 'Inglés', 'Comprensión Lectora', 'Computación Básica'], 'Aula Multiusos', 'liliana.martinez', 'martinez123');
 
 -- Insert Initial Students
 INSERT INTO students (id, name, email, phone, folio, level, status, username, temp_password, registered_at, avatar) VALUES
@@ -107,7 +106,6 @@ INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot
 ('c-1', 'Física Avanzada', 'Dr. Roberto Sánchez', 'Media Superior', 75, 'Activo', 'Aula 302', '10:00 AM', 'science', 'Principios de mecánica, termodinámica y óptica para bachillerato y examen de admisión.'),
 ('c-2', 'Cálculo Integral', 'Mtra. Elena Gómez', 'Media Superior', 40, 'Activo', 'Lab B', '13:30 PM', 'calculate', 'Métodos de integración, aplicaciones del cálculo diferencial e integral.'),
 ('c-3', 'Matemáticas Avanzadas', 'Prof. A. Ramírez', 'Nivel Superior', 90, 'Activo', 'Aula 101', '08:00 AM', 'functions', 'Álgebra lineal, ecuaciones diferenciales y geometría analítica.'),
-('c-4', 'Programación Web & Bases de Datos', 'Lic. Victor David Maya Arce', 'Nivel Superior', 60, 'Activo', 'Lab Computación', '16:00 PM', 'code', 'Desarrollo web moderno con HTML, CSS, JavaScript, React y diseño de bases de datos.'),
 ('c-5', 'Química General e Inorgánica', 'Liliana Silvestre Castillo', 'Básica', 85, 'Activo', 'Lab Química', '11:00 AM', 'flask', 'Estructura atómica, enlaces químicos, estequiometría y tabla periódica.'),
 ('c-6', 'Taller de Tareas y Asesorías', 'Mtra. Liliana Martínez Palacios', 'Básica', 50, 'Activo', 'Aula Multiusos', '15:00 PM', 'book', 'Refuerzo escolar personalizado para educación básica y media superior.');
 
@@ -116,7 +114,6 @@ INSERT INTO student_courses (student_id, course_id) VALUES
 ('st-1', 'c-1'),
 ('st-1', 'c-2'),
 ('st-2', 'c-3'),
-('st-2', 'c-4'),
 ('st-5', 'c-5'),
 ('st-sofia', 'c-6');
 
@@ -150,5 +147,4 @@ INSERT INTO schedule_items (id, title, teacher, day_index, start_time, duration_
 ('sch-2', 'Física Cuántica', 'Prof. M. Silva', 1, '09:00', 2.0, 'Individual - Lab 3', TRUE, 'Conflicto de Aula: Solapamiento en Lab 3 con taller práctico.', 'error'),
 ('sch-3', 'Taller de Diseño & Web', 'Prof. L. Torres', 2, '10:00', 1.5, 'Estudio B', FALSE, NULL, 'lime'),
 ('sch-4', 'Química General', 'Liliana Silvestre Castillo', 3, '08:30', 1.5, 'Lab Química', FALSE, NULL, 'blue'),
-('sch-5', 'Programación Web', 'Lic. Victor David Maya Arce', 4, '10:00', 2.0, 'Lab A', FALSE, NULL, 'navy'),
 ('sch-6', 'Preparación Examen Admisión', 'Mtra. Liliana Martínez Palacios', 5, '09:00', 3.0, 'Auditorio Chapa de Mota', FALSE, NULL, 'lime');

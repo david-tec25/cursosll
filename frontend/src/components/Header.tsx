@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-brand-red shadow-xs group-hover:scale-105 transition-transform">
             <img
-              src="/victor_david.jpg"
+              src="/liliana_palacios.jpg"
               alt="Administrador / Alumno"
               className="w-full h-full object-cover"
             />
