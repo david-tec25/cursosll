@@ -98,8 +98,7 @@ INSERT INTO students (id, name, email, phone, folio, level, status, username, te
 ('st-2', 'Carlos Mendoza', 'carlos.mendoza@email.com', '5587654321', '84919', 'Nivel Superior', 'Activo', 'carlos.m.ns', 'IA-7731-ns!', 'Hace 10 min', NULL),
 ('st-3', 'María Fernanda Ruíz', 'm.fernanda@email.com', '5544332211', '84918', 'Básica', 'Enviado', 'm.fernanda.b', 'IA-5512-b!', 'Hace 45 min', NULL),
 ('st-4', 'Luis Torres', 'luis.torres@email.com', '5566778899', '84917', 'Media Superior', 'Pendiente', 'luis.torres.ms', 'IA-3390-ms!', 'Hace 2 horas', NULL),
-('st-5', 'Juan López', 'juan.lopez@email.com', '5599887766', '84916', 'Básica', 'Activo', 'juan.lopez.b', 'IA-1102-b!', 'Ayer, 16:30 PM', NULL),
-('st-sofia', 'Sofia Maya M.', 'sofia@email.com', '5512345678', '84921', 'Básica', 'Activo', 'sofia.maya.m.b', 'IA-1234-b!', 'Hace poco', NULL);
+('st-5', 'Juan López', 'juan.lopez@email.com', '5599887766', '84916', 'Básica', 'Activo', 'juan.lopez.b', 'IA-1102-b!', 'Ayer, 16:30 PM', NULL);
 
 -- Insert Initial Courses
 INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot, icon_name, description) VALUES
@@ -114,8 +113,7 @@ INSERT INTO student_courses (student_id, course_id) VALUES
 ('st-1', 'c-1'),
 ('st-1', 'c-2'),
 ('st-2', 'c-3'),
-('st-5', 'c-5'),
-('st-sofia', 'c-6');
+('st-5', 'c-5');
 
 -- Insert Initial Recent Activities
 INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) VALUES
