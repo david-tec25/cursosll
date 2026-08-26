@@ -200,9 +200,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, students }) =
         },
         avanzado: {
           title: 'Taller de Cómputo - Avanzado',
-          instructor: 'Lic. Victor David Maya Arce',
-          role: 'Lic. en Informática',
-          avatar: '/victor_david.jpg',
+          instructor: 'Mtra. Liliana Martínez Palacios',
+          role: 'Maestra en Ciencias de la Educación y TIC',
+          avatar: '/liliana_palacios.jpg',
           duration: '36 horas de optimización',
           levelName: 'Media Superior',
           description: 'Aprende automatización de tareas con hojas de cálculo avanzadas, fundamentos de hardware, redes locales y gestión avanzada en la nube.',
