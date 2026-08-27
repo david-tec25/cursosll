@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS attendance (
 -- Insert Initial Teachers
 INSERT INTO teachers (id, name, title, specialty, email, phone, avatar, subjects, room, username, temp_password) VALUES
 ('t-1', 'Ing. Liliana Silvestre Castillo', 'Ing. en Química', 'Química General, Inorgánica, Orgánica y Matemáticas', 'llcursoschapademota@gmail.com', '55-1414-8765', '/liliana_silvestre.jpg', ARRAY['Química', 'Ciencias Naturales', 'Experimentos de Laboratorio', 'Matemáticas'], 'Lab Química', 'liliana.silvestre', 'liliana123'),
-('t-2', 'Mtra. Liliana Martínez Palacios', 'Maestra en Ciencias de la Educación', 'Preparación para examen de admisión, Computación & Taller de Tareas', 'llcursoschapademota@gmail.com', '55-4713-0833', '/liliana_palacios.jpg', ARRAY['Taller de tareas', 'Inglés', 'Comprensión Lectora', 'Computación Básica'], 'Aula Multiusos', 'liliana.martinez', 'martinez123');
+('t-2', 'Mtra. Liliana Martínez Palacios', 'Maestra en Ciencias de la Educación', 'Preparación para examen de admisión, Computación & Taller de Tareas', 'llcursoschapademota@gmail.com', '55-4713-0833', '/liliana_palacios.jpg', ARRAY['Taller de tareas', 'Inglés', 'Comprensión Lectora', 'Computación Básica'], 'Aula Multiusos', 'liliana.martinez', 'lima2026');
 
 -- Insert Initial Students
 INSERT INTO students (id, name, email, phone, folio, level, status, username, temp_password, registered_at, avatar) VALUES

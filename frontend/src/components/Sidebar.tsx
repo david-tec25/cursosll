@@ -17,6 +17,7 @@ import {
 
 interface SidebarProps {
   userRole: 'admin' | 'student' | 'teacher' | null;
+  currentUser: string | null;
   activeTab: NavigationTab;
   setActiveTab: (tab: NavigationTab) => void;
   onOpenNewModal: () => void;
@@ -27,6 +28,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   userRole,
+  currentUser,
   activeTab,
   setActiveTab,
   onOpenNewModal,
@@ -87,7 +89,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       return ['student-portal'].includes(item.id);
     }
     if (userRole === 'teacher') {
-      return ['teacher-dashboard', 'schedule', 'courses', 'teachers'].includes(item.id);
+      const allowed = ['teacher-dashboard', 'students', 'courses'];
+      if (currentUser === 'liliana.martinez') {
+        allowed.push('teachers');
+      }
+      return allowed.includes(item.id);
     }
     // Para el administrador, quitamos el folleto informativo y el portal de alumno
     return item.id !== 'brochure' && item.id !== 'student-portal';

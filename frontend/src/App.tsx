@@ -547,6 +547,28 @@ export default function App() {
       alert('Error de conexión al intentar eliminar el taller.');
     }
   };
+  const currentTeacherObj = teachers.find(t => t.username === currentUser);
+  const currentTeacherName = currentTeacherObj?.name;
+
+  const teacherCourseIds = userRole === 'teacher' && currentTeacherName
+    ? courses.filter(c => c.teacher === currentTeacherName).map(c => c.id)
+    : [];
+
+  const filteredCourses = userRole === 'teacher' && currentTeacherName
+    ? courses.filter(c => c.teacher === currentTeacherName)
+    : courses;
+
+  const filteredStudents = userRole === 'teacher' && currentTeacherName
+    ? students.filter(s => 
+        (s.courseIds && s.courseIds.some(id => teacherCourseIds.includes(id))) || 
+        (!s.courseIds || s.courseIds.length === 0)
+      )
+    : students;
+
+  const filteredTeachers = userRole === 'teacher' && currentTeacherName
+    ? teachers.filter(t => t.name === currentTeacherName)
+    : teachers;
+
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -571,6 +593,7 @@ export default function App() {
             onAddScheduleItem={handleAddScheduleItem}
             onClearSchedule={handleClearScheduleForCourse}
             onRefreshStudents={refreshStudents}
+            userRole={userRole}
           />
         );
       case 'student-portal': {
@@ -587,8 +610,8 @@ export default function App() {
       case 'students':
         return (
           <StudentsDashboard 
-            students={students}
-            courses={courses}
+            students={filteredStudents}
+            courses={filteredCourses}
             onOpenNewModal={() => setIsNewModalOpen(true)}
             onUpdateStudentCredentials={handleUpdateStudentCredentials}
             onAssignCourse={handleAssignCourse}
@@ -611,15 +634,15 @@ export default function App() {
       case 'courses':
         return (
           <CoursesView 
-            courses={courses} 
-            students={students}
+            courses={filteredCourses} 
+            students={filteredStudents}
             onOpenNewModal={() => setIsNewCourseModalOpen(true)} 
             onDeleteCourse={handleDeleteCourse}
             onOpenEditModal={(course) => setEditingCourse(course)}
           />
         );
       case 'teachers':
-        return <TeachersView teachers={teachers} />;
+        return <TeachersView teachers={filteredTeachers} />;
       case 'brochure':
         return <BrochureView />;
       case 'settings':
@@ -647,6 +670,7 @@ export default function App() {
       {/* Navigation Sidebar */}
       <Sidebar 
         userRole={userRole}
+        currentUser={currentUser}
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onOpenNewModal={() => setIsNewModalOpen(true)} 
@@ -695,7 +719,8 @@ export default function App() {
           isOpen={isNewCourseModalOpen}
           onClose={() => setIsNewCourseModalOpen(false)}
           onAddCourse={handleAddCourse}
-          teachers={teachers}
+          teachers={filteredTeachers}
+          userRole={userRole}
         />
       )}
 
@@ -706,8 +731,9 @@ export default function App() {
           onClose={() => setEditingCourse(null)}
           course={editingCourse}
           onEditCourse={handleEditCourse}
-          teachers={teachers}
-          students={students}
+          teachers={filteredTeachers}
+          students={filteredStudents}
+          userRole={userRole}
         />
       )}
     </div>

@@ -44,7 +44,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, students }) => {
           onLogin('student', foundStudent.username);
         } else if (lowerUser === 'liliana.silvestre' && pass === 'liliana123') {
           onLogin('teacher', 'liliana.silvestre');
-        } else if (lowerUser === 'liliana.martinez' && pass === 'martinez123') {
+        } else if (lowerUser === 'liliana.martinez' && pass === 'lima2026') {
           onLogin('teacher', 'liliana.martinez');
         } else {
           setError('Usuario o contraseña incorrectos. Ingresa credenciales válidas asignadas por el administrador.');
