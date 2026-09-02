@@ -1,5 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { query } from './db.js';
 dotenv.config();
 const { Client } = pg;
 async function inspect() {
@@ -11,30 +12,15 @@ async function inspect() {
         database: process.env.DB_DATABASE || 'impulso_academico',
     });
     try {
-        await client.connect();
-        console.log('CONNECTED TO DB');
-        // Inspect students table columns
-        const res = await client.query(`
-      SELECT column_name, data_type, is_nullable 
-      FROM information_schema.columns 
-      WHERE table_name = 'students';
-    `);
-        console.log('STUDENTS TABLE SCHEMAS:');
-        console.log(res.rows);
-        // Inspect courses table columns
-        const resCourses = await client.query(`
-      SELECT column_name, data_type, is_nullable 
-      FROM information_schema.columns 
-      WHERE table_name = 'courses';
-    `);
-        console.log('COURSES TABLE SCHEMAS:');
-        console.log(resCourses.rows);
+        const resTeachers = await query(`SELECT id, name, username, room FROM teachers`);
+        console.log('TEACHERS:', resTeachers.rows);
+        const resCourses = await query(`SELECT id, name, teacher, room, time_slot FROM courses`);
+        console.log('COURSES:', resCourses.rows);
+        const resSchedule = await query(`SELECT id, title, teacher, room, start_time FROM schedule_items`);
+        console.log('SCHEDULE:', resSchedule.rows);
     }
     catch (err) {
         console.error('ERROR during inspection:', err.message);
-    }
-    finally {
-        await client.end();
     }
 }
 inspect();

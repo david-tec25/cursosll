@@ -42,9 +42,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin, students }) => {
         
         if (foundStudent) {
           onLogin('student', foundStudent.username);
-        } else if (lowerUser === 'liliana.silvestre' && pass === 'liliana123') {
+        } else if (lowerUser === 'liliana.silvestre' && pass === 'lisi26*') {
           onLogin('teacher', 'liliana.silvestre');
-        } else if (lowerUser === 'liliana.martinez' && pass === 'lima2026') {
+        } else if (lowerUser === 'liliana.martinez' && pass === 'lima26*pa') {
           onLogin('teacher', 'liliana.martinez');
         } else {
           setError('Usuario o contraseña incorrectos. Ingresa credenciales válidas asignadas por el administrador.');

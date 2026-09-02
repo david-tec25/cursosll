@@ -18,8 +18,27 @@ import {
   X,
   Check,
   Printer,
-  Trash2
+  Trash2,
 } from 'lucide-react';
+
+export const isTeacherMatch = (name1?: string, name2?: string): boolean => {
+  if (!name1 || !name2) return false;
+  const clean = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/^(ing\.|mtra\.|prof\.|lic\.|dr\.|dra\.)\s*/i, '')
+      .trim();
+
+  const n1 = clean(name1);
+  const n2 = clean(name2);
+
+  if (n1 === n2 || n1.includes(n2) || n2.includes(n1)) return true;
+  if (n1.includes('silvestre') && n2.includes('silvestre')) return true;
+  if (n1.includes('martinez') && n2.includes('martinez')) return true;
+  return false;
+};
 
 interface TeacherDashboardProps {
   currentUser: string | null;
@@ -74,8 +93,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     }
   }, [currentUser, defaultTeacher, userRole]);
 
-  // Find currently active teacher
-  const currentTeacher = teachers.find(t => t.id === selectedTeacherId) || defaultTeacher;
+  // Find currently active teacher (strictly locked to logged-in teacher if role is teacher)
+  const currentTeacher = (userRole === 'teacher' && defaultTeacher)
+    ? defaultTeacher
+    : (teachers.find(t => t.id === selectedTeacherId) || defaultTeacher);
 
   // New scheduling states
   const [selectedCourseToSchedule, setSelectedCourseToSchedule] = useState<Course | null>(null);
@@ -169,10 +190,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
   useEffect(() => {
     const computedFilteredCourseObj = selectedCourseFilter
-      ? courses.find(c => c.name === selectedCourseFilter && c.teacher === currentTeacher?.name)
+      ? courses.find(c => c.name === selectedCourseFilter && isTeacherMatch(c.teacher, currentTeacher?.name))
       : null;
     const computedTeacherCourses = currentTeacher 
-      ? courses.filter(c => c.teacher === currentTeacher.name)
+      ? courses.filter(c => isTeacherMatch(c.teacher, currentTeacher.name))
       : [];
 
     if (computedFilteredCourseObj) {
@@ -273,7 +294,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 onChange={(e) => setReportCourseId(e.target.value)}
                 className="w-full mt-1 p-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold text-gray-800 dark:text-white focus:outline-none focus:border-emerald-500"
               >
-                {courses.filter(c => c.teacher === currentTeacher?.name).map(c => (
+                {courses.filter(c => isTeacherMatch(c.teacher, currentTeacher?.name)).map(c => (
                   <option key={c.id} value={c.id}>{c.name} ({c.level})</option>
                 ))}
               </select>
@@ -365,7 +386,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
   const loadExistingSchedule = (course: Course) => {
     const existing = scheduleItems.filter(
-      item => item.title === course.name && item.teacher === currentTeacher.name
+      item => item.title === course.name && isTeacherMatch(item.teacher, currentTeacher.name)
     );
     if (existing.length > 0) {
       if (existing[0].weekStartDate) {
@@ -424,7 +445,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
   const handleCourseCardClick = (course: Course) => {
     const hasExisting = scheduleItems.some(
-      item => item.title === course.name && item.teacher === currentTeacher.name
+      item => item.title === course.name && isTeacherMatch(item.teacher, currentTeacher.name)
     );
 
     if (hasExisting) {
@@ -442,7 +463,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
     // Check if there is an existing schedule to clear first
     const hasExisting = scheduleItems.some(
-      item => item.title === selectedCourseToSchedule.name && item.teacher === currentTeacher.name && item.weekStartDate === scheduleWeekStart
+      item => item.title === selectedCourseToSchedule.name && isTeacherMatch(item.teacher, currentTeacher.name) && item.weekStartDate === scheduleWeekStart
     );
 
     if (hasExisting && onClearSchedule) {
@@ -502,16 +523,16 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   }
 
   // Filter courses taught by this teacher
-  const teacherCourses = courses.filter(c => c.teacher === currentTeacher.name);
+  const teacherCourses = courses.filter(c => isTeacherMatch(c.teacher, currentTeacher.name));
 
   // Filter schedule items taught by this teacher
-  const teacherSchedule = scheduleItems.filter(item => item.teacher === currentTeacher.name);
+  const teacherSchedule = scheduleItems.filter(item => isTeacherMatch(item.teacher, currentTeacher.name));
 
   // Filter schedule items located in their assigned classroom
   const roomSchedule = scheduleItems.filter(item => item.room === currentTeacher.room);
 
   // Detect conflicts: classes in their assigned room taught by SOMEONE ELSE
-  const roomConflicts = roomSchedule.filter(item => item.teacher !== currentTeacher.name);
+  const roomConflicts = roomSchedule.filter(item => !isTeacherMatch(item.teacher, currentTeacher.name));
   const activeConflicts = roomConflicts.filter(c => !dismissedConflictIds.includes(c.id));
 
   // Levels taught by this teacher
@@ -522,7 +543,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
   // Filter students based on selected course filter if active, otherwise show all teacher's students
   const filteredCourseObj = selectedCourseFilter
-    ? courses.find(c => c.name === selectedCourseFilter && c.teacher === currentTeacher.name)
+    ? courses.find(c => c.name === selectedCourseFilter && isTeacherMatch(c.teacher, currentTeacher.name))
     : null;
 
   // Students enrolled in those courses
@@ -622,7 +643,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             })}
           </div>
         </div>
-      )}   </div>
+      )}
 
       {/* Teacher Profile Banner */}
       <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-6">

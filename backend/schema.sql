@@ -100,16 +100,8 @@ CREATE TABLE IF NOT EXISTS attendance (
 
 -- Insert Initial Teachers
 INSERT INTO teachers (id, name, title, specialty, email, phone, avatar, subjects, room, username, temp_password) VALUES
-('t-1', 'Ing. Liliana Silvestre Castillo', 'Ing. en Química', 'Química General, Inorgánica, Orgánica y Matemáticas', 'llcursoschapademota@gmail.com', '55-1414-8765', '/liliana_silvestre.jpg', ARRAY['Química', 'Ciencias Naturales', 'Experimentos de Laboratorio', 'Matemáticas'], 'Lab Química', 'liliana.silvestre', 'liliana123'),
-('t-2', 'Mtra. Liliana Martínez Palacios', 'Maestra en Ciencias de la Educación', 'Preparación para examen de admisión, Computación & Taller de Tareas', 'llcursoschapademota@gmail.com', '55-4713-0833', '/liliana_palacios.jpg', ARRAY['Taller de tareas', 'Inglés', 'Comprensión Lectora', 'Computación Básica'], 'Aula Multiusos', 'liliana.martinez', 'lima2026');
-
--- Insert Initial Students
-INSERT INTO students (id, name, email, phone, folio, level, status, username, temp_password, registered_at, avatar) VALUES
-('st-1', 'Ana García López', 'ana.garcia@email.com', '5512345678', '84920', 'Media Superior', 'Pendiente', 'ana.garcial.ms', 'IA-9824-ms!', 'Hoy, 10:24 AM', NULL),
-('st-2', 'Carlos Mendoza', 'carlos.mendoza@email.com', '5587654321', '84919', 'Nivel Superior', 'Activo', 'carlos.m.ns', 'IA-7731-ns!', 'Hace 10 min', NULL),
-('st-3', 'María Fernanda Ruíz', 'm.fernanda@email.com', '5544332211', '84918', 'Básica', 'Enviado', 'm.fernanda.b', 'IA-5512-b!', 'Hace 45 min', NULL),
-('st-4', 'Luis Torres', 'luis.torres@email.com', '5566778899', '84917', 'Media Superior', 'Pendiente', 'luis.torres.ms', 'IA-3390-ms!', 'Hace 2 horas', NULL),
-('st-5', 'Juan López', 'juan.lopez@email.com', '5599887766', '84916', 'Básica', 'Activo', 'juan.lopez.b', 'IA-1102-b!', 'Ayer, 16:30 PM', NULL);
+('t-1', 'Ing. Liliana Silvestre Castillo', 'Ing. en Química', 'Química General, Inorgánica, Orgánica y Matemáticas', 'llcursoschapademota@gmail.com', '55-1414-8765', '/liliana_silvestre.jpg', ARRAY['Química', 'Ciencias Naturales', 'Experimentos de Laboratorio', 'Matemáticas'], 'Lab Química', 'liliana.silvestre', 'lisi26*'),
+('t-2', 'Mtra. Liliana Martínez Palacios', 'Maestra en Ciencias de la Educación', 'Preparación para examen de admisión, Computación & Taller de Tareas', 'llcursoschapademota@gmail.com', '55-4713-0833', '/liliana_palacios.jpg', ARRAY['Taller de tareas', 'Inglés', 'Comprensión Lectora', 'Computación Básica'], 'Aula Multiusos', 'liliana.martinez', 'lima26*pa');
 
 -- Insert Initial Courses
 INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot, icon_name, description) VALUES
@@ -118,15 +110,8 @@ INSERT INTO courses (id, name, teacher, level, progress, status, room, time_slot
 ('c-5', 'Química General e Inorgánica', 'Liliana Silvestre Castillo', 'Básica', 85, 'Activo', 'Lab Química', '11:00 AM', 'flask', 'Estructura atómica, enlaces químicos, estequiometría y tabla periódica.'),
 ('c-6', 'Taller de Tareas y Asesorías', 'Liliana Silvestre Castillo', 'Básica', 50, 'Activo', 'Aula Multiusos', '15:00 PM', 'book', 'Refuerzo escolar personalizado para educación básica y media superior.');
 
--- Insert Student Courses (Enrolled in courses)
-INSERT INTO student_courses (student_id, course_id) VALUES
-('st-1', 'c-2'),
-('st-2', 'c-3'),
-('st-5', 'c-5');
-
 -- Insert Initial Recent Activities
 INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) VALUES
-('act-1', 'Ana García', 'AG', 'Registro en sistema', 'Hoy, 10:24 AM', 'Completado', 'registro'),
 ('act-2', 'Juan Pérez', 'JP', 'Credenciales enviadas', 'Hoy, 09:15 AM', 'Completado', 'credencial'),
 ('act-3', 'Luis Martínez', 'LM', 'Pago de mensualidad', 'Ayer, 16:30 PM', 'Pendiente', 'pago'),
 ('act-4', 'Clase: Matemáticas', 'CM', 'Actualización de temario', 'Ayer, 14:00 PM', 'Completado', 'curso');

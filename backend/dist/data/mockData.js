@@ -1,65 +1,4 @@
-export const INITIAL_STUDENTS = [
-    {
-        id: 'st-1',
-        name: 'Ana García López',
-        email: 'ana.garcia@email.com',
-        phone: '5512345678',
-        folio: '84920',
-        level: 'Media Superior',
-        status: 'Pendiente',
-        username: 'ana.garcial.ms',
-        tempPassword: 'IA-9824-ms!',
-        registeredAt: 'Hoy, 10:24 AM',
-    },
-    {
-        id: 'st-2',
-        name: 'Carlos Mendoza',
-        email: 'carlos.mendoza@email.com',
-        phone: '5587654321',
-        folio: '84919',
-        level: 'Nivel Superior',
-        status: 'Activo',
-        username: 'carlos.m.ns',
-        tempPassword: 'IA-7731-ns!',
-        registeredAt: 'Hace 10 min',
-    },
-    {
-        id: 'st-3',
-        name: 'María Fernanda Ruíz',
-        email: 'm.fernanda@email.com',
-        phone: '5544332211',
-        folio: '84918',
-        level: 'Básica',
-        status: 'Enviado',
-        username: 'm.fernanda.b',
-        tempPassword: 'IA-5512-b!',
-        registeredAt: 'Hace 45 min',
-    },
-    {
-        id: 'st-4',
-        name: 'Luis Torres',
-        email: 'luis.torres@email.com',
-        phone: '5566778899',
-        folio: '84917',
-        level: 'Media Superior',
-        status: 'Pendiente',
-        username: 'luis.torres.ms',
-        tempPassword: 'IA-3390-ms!',
-        registeredAt: 'Hace 2 horas',
-    },
-    {
-        id: 'st-5',
-        name: 'Juan López',
-        email: 'juan.lopez@email.com',
-        phone: '5599887766',
-        folio: '84916',
-        level: 'Básica',
-        status: 'Activo',
-        username: 'juan.lopez.b',
-        tempPassword: 'IA-1102-b!',
-        registeredAt: 'Ayer, 16:30 PM',
-    },
-];
+export const INITIAL_STUDENTS = [];
 export const INITIAL_COURSES = [
     {
         id: 'c-2',
@@ -185,15 +124,6 @@ export const INITIAL_SCHEDULE = [
     },
 ];
 export const INITIAL_ACTIVITIES = [
-    {
-        id: 'act-1',
-        user: 'Ana García',
-        userInitials: 'AG',
-        action: 'Registro en sistema',
-        dateTime: 'Hoy, 10:24 AM',
-        status: 'Completado',
-        type: 'registro',
-    },
     {
         id: 'act-2',
         user: 'Juan Pérez',

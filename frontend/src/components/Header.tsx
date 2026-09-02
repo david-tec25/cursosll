@@ -5,6 +5,8 @@ import { Search, Bell, HelpCircle, Menu, Check, X, ArrowRight, UserCheck } from 
 interface HeaderProps {
   userRole: 'admin' | 'student' | 'teacher' | null;
   studentName?: string;
+  userAvatar?: string;
+  userName?: string;
   activeTab: NavigationTab;
   setActiveTab: (tab: NavigationTab) => void;
   onOpenMobileMenu: () => void;
@@ -15,6 +17,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   userRole,
   studentName,
+  userAvatar,
+  userName,
   activeTab,
   setActiveTab,
   onOpenMobileMenu,
@@ -24,9 +28,9 @@ export const Header: React.FC<HeaderProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [notifications, setNotifications] = useState([
-    { id: '1', title: 'Nueva solicitud de credencial', text: 'Ana García López solicitó acceso.', time: 'Hace 5m', unread: true },
+    { id: '1', title: 'Nueva solicitud de credencial', text: 'Un nuevo alumno solicitó acceso.', time: 'Hace 5m', unread: true },
     { id: '2', title: 'Conflicto de horario detectado', text: 'Aula 302 con solapamiento el Martes 09:00.', time: 'Hace 15m', unread: true },
-    { id: '3', title: 'Mensaje de WhatsApp enviado', text: 'Credenciales enviadas a Juan Pérez.', time: 'Hace 1h', unread: false },
+    { id: '3', title: 'Mensaje de WhatsApp enviado', text: 'Plantilla de bienvenida actualizada.', time: 'Hace 1h', unread: false },
   ]);
 
   const getTitle = () => {
@@ -150,17 +154,36 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* User Profile avatar */}
         <div 
-          onClick={() => setActiveTab('student-portal')}
-          className="flex items-center gap-2 cursor-pointer group"
-          title={userRole === 'student' ? `Ver perfil de ${studentName || 'Alumno'}` : "Ver perfil de Administrador"}
+          onClick={() => {
+            if (userRole === 'student') setActiveTab('student-portal');
+            else if (userRole === 'teacher') setActiveTab('teacher-dashboard');
+            else setActiveTab('dashboard');
+          }}
+          className="flex items-center gap-2.5 cursor-pointer group"
+          title={
+            userRole === 'student' 
+              ? `Ver perfil de ${studentName || 'Alumno'}` 
+              : userRole === 'teacher'
+              ? `Docente: ${userName || 'Profesor'}`
+              : "Ver perfil de Administrador"
+          }
         >
-          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-brand-red shadow-xs group-hover:scale-105 transition-transform">
-            <img
-              src="/liliana_palacios.jpg"
-              alt="Administrador / Alumno"
-              className="w-full h-full object-cover"
-            />
+          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-brand-red shadow-xs group-hover:scale-105 transition-transform bg-slate-100 flex items-center justify-center">
+            {userAvatar ? (
+              <img
+                src={userAvatar}
+                alt={userName || "Usuario"}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <UserCheck className="w-4 h-4 text-brand-red" />
+            )}
           </div>
+          {userName && (
+            <span className="hidden md:inline text-xs font-bold text-slate-700 dark:text-gray-200 truncate max-w-[160px]">
+              {userName}
+            </span>
+          )}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { query } from './db.js';
+import pool, { query } from './db.js';
 import { Student, Course, Teacher, ScheduleItem, RecentActivityItem } from './types.js';
 
 dotenv.config();
@@ -361,9 +361,10 @@ app.put('/api/courses/name/:name', async (req, res) => {
 app.put('/api/courses/:id', async (req, res) => {
   const { id } = req.params;
   const { name, teacher, level, progress, status, room, timeSlot, iconName, description, studentIds } = req.body;
+  const client = await pool.connect();
   try {
-    await query('BEGIN');
-    const result = await query(
+    await client.query('BEGIN');
+    const result = await client.query(
       `UPDATE courses 
        SET name = $1, teacher = $2, level = $3, progress = $4, status = $5, room = $6, time_slot = $7, icon_name = $8, description = $9 
        WHERE id = $10 
@@ -372,7 +373,7 @@ app.put('/api/courses/:id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      await query('ROLLBACK');
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Curso no encontrado' });
     }
 
@@ -380,9 +381,9 @@ app.put('/api/courses/:id', async (req, res) => {
 
     // Sync student enrollments if studentIds is passed
     if (Array.isArray(studentIds)) {
-      await query(`DELETE FROM student_courses WHERE course_id = $1`, [id]);
+      await client.query(`DELETE FROM student_courses WHERE course_id = $1`, [id]);
       for (const studentId of studentIds) {
-        await query(
+        await client.query(
           `INSERT INTO student_courses (student_id, course_id) VALUES ($1, $2)
            ON CONFLICT (student_id, course_id) DO NOTHING`,
           [studentId, id]
@@ -392,7 +393,7 @@ app.put('/api/courses/:id', async (req, res) => {
 
     // Log recent activity
     const activityId = `act-${Date.now()}`;
-    const activityRes = await query(
+    const activityRes = await client.query(
       `INSERT INTO recent_activities (id, username, user_initials, action, date_time, status, type) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING id, username AS user, user_initials AS "userInitials", action, date_time AS "dateTime", status, type`,
@@ -407,12 +408,14 @@ app.put('/api/courses/:id', async (req, res) => {
       ]
     );
 
-    await query('COMMIT');
+    await client.query('COMMIT');
     res.json({ success: true, course: updatedCourse, activity: activityRes.rows[0] });
   } catch (err: any) {
-    await query('ROLLBACK');
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error updating course by id:', err.message);
     res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
   }
 });
 
@@ -697,12 +700,13 @@ app.post('/api/attendance', async (req, res) => {
     return res.status(400).json({ error: 'courseId, classDate y records son requeridos' });
   }
 
+  const client = await pool.connect();
   try {
-    await query('BEGIN');
+    await client.query('BEGIN');
 
     for (const [studentId, attended] of Object.entries(records)) {
       // Upsert attendance record
-      await query(
+      await client.query(
         `INSERT INTO attendance (student_id, course_id, class_date, attended)
          VALUES ($1, $2, $3, $4)
          ON CONFLICT (student_id, course_id, class_date)
@@ -711,7 +715,7 @@ app.post('/api/attendance', async (req, res) => {
       );
 
       // Update completed sessions count
-      await query(
+      await client.query(
         `UPDATE student_courses
          SET completed_sessions = (
            SELECT COUNT(*) FROM attendance
@@ -722,12 +726,14 @@ app.post('/api/attendance', async (req, res) => {
       );
     }
 
-    await query('COMMIT');
+    await client.query('COMMIT');
     res.json({ success: true });
   } catch (err: any) {
-    await query('ROLLBACK');
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error saving attendance:', err.message);
     res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
   }
 });
 

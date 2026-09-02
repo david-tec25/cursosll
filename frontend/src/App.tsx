@@ -53,7 +53,7 @@ export default function App() {
           setActiveTab('student-portal');
         }
       } else if (userRole === 'teacher') {
-        const allowedTabs: NavigationTab[] = ['teacher-dashboard', 'schedule', 'courses', 'teachers', 'settings'];
+        const allowedTabs: NavigationTab[] = ['teacher-dashboard', 'courses', 'students', 'teachers', 'settings'];
         if (!allowedTabs.includes(activeTab)) {
           setActiveTab('teacher-dashboard');
         }
@@ -62,7 +62,7 @@ export default function App() {
   }, [activeTab, userRole, isLoggedIn]);
 
   const currentStudentObj = students.find(s => s.username === currentUser);
-  const studentName = currentStudentObj ? currentStudentObj.name : (userRole === 'student' ? 'Ana García López' : undefined);
+  const studentName = currentStudentObj ? currentStudentObj.name : (userRole === 'student' ? 'Estudiante' : undefined);
 
   const handleLogin = (role: 'admin' | 'student' | 'teacher', username?: string) => {
     setIsLoggedIn(true);
@@ -73,7 +73,7 @@ export default function App() {
       setCurrentUser(username);
       localStorage.setItem('username', username);
     } else {
-      const defaultUser = role === 'student' ? 'ana.garcial.ms' : role === 'teacher' ? 'liliana.martinez' : 'admin';
+      const defaultUser = role === 'student' ? (students[0]?.username || '') : role === 'teacher' ? 'liliana.martinez' : 'admin';
       setCurrentUser(defaultUser);
       localStorage.setItem('username', defaultUser);
     }
@@ -547,27 +547,59 @@ export default function App() {
       alert('Error de conexión al intentar eliminar el taller.');
     }
   };
+  const isTeacherMatch = (name1?: string, name2?: string): boolean => {
+    if (!name1 || !name2) return false;
+    const clean = (s: string) =>
+      s
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/^(ing\.|mtra\.|prof\.|lic\.|dr\.|dra\.)\s*/i, '')
+        .trim();
+
+    const n1 = clean(name1);
+    const n2 = clean(name2);
+
+    if (n1 === n2 || n1.includes(n2) || n2.includes(n1)) return true;
+    if (n1.includes('silvestre') && n2.includes('silvestre')) return true;
+    if (n1.includes('martinez') && n2.includes('martinez')) return true;
+    return false;
+  };
+
   const currentTeacherObj = teachers.find(t => t.username === currentUser);
   const currentTeacherName = currentTeacherObj?.name;
 
   const teacherCourseIds = userRole === 'teacher' && currentTeacherName
-    ? courses.filter(c => c.teacher === currentTeacherName).map(c => c.id)
+    ? courses.filter(c => isTeacherMatch(c.teacher, currentTeacherName)).map(c => c.id)
     : [];
 
   const filteredCourses = userRole === 'teacher' && currentTeacherName
-    ? courses.filter(c => c.teacher === currentTeacherName)
+    ? courses.filter(c => isTeacherMatch(c.teacher, currentTeacherName))
     : courses;
 
   const filteredStudents = userRole === 'teacher' && currentTeacherName
-    ? students.filter(s => 
-        (s.courseIds && s.courseIds.some(id => teacherCourseIds.includes(id))) || 
-        (!s.courseIds || s.courseIds.length === 0)
-      )
+    ? students.filter(s => s.courseIds && s.courseIds.some(id => teacherCourseIds.includes(id)))
     : students;
 
   const filteredTeachers = userRole === 'teacher' && currentTeacherName
-    ? teachers.filter(t => t.name === currentTeacherName)
+    ? teachers.filter(t => isTeacherMatch(t.name, currentTeacherName))
     : teachers;
+
+  const filteredScheduleItems = userRole === 'teacher' && currentTeacherName
+    ? scheduleItems.filter(item => isTeacherMatch(item.teacher, currentTeacherName) || item.room === currentTeacherObj?.room)
+    : scheduleItems;
+
+  const userAvatar = userRole === 'teacher'
+    ? currentTeacherObj?.avatar
+    : userRole === 'student'
+    ? currentStudentObj?.avatar
+    : '/liliana_palacios.jpg';
+
+  const userName = userRole === 'teacher'
+    ? currentTeacherObj?.name
+    : userRole === 'student'
+    ? currentStudentObj?.name
+    : 'Administrador';
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -586,10 +618,10 @@ export default function App() {
         return (
           <TeacherDashboard
             currentUser={currentUser}
-            teachers={teachers}
-            courses={courses}
-            scheduleItems={scheduleItems}
-            students={students}
+            teachers={filteredTeachers}
+            courses={filteredCourses}
+            scheduleItems={filteredScheduleItems}
+            students={filteredStudents}
             onAddScheduleItem={handleAddScheduleItem}
             onClearSchedule={handleClearScheduleForCourse}
             onRefreshStudents={refreshStudents}
@@ -685,6 +717,8 @@ export default function App() {
         <Header 
           userRole={userRole}
           studentName={studentName}
+          userAvatar={userAvatar}
+          userName={userName}
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           onOpenMobileMenu={() => setMobileOpen(true)} 

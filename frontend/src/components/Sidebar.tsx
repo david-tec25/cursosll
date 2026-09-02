@@ -84,20 +84,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  const menuItems = allMenuItems.filter((item) => {
-    if (userRole === 'student') {
-      return ['student-portal'].includes(item.id);
-    }
-    if (userRole === 'teacher') {
-      const allowed = ['teacher-dashboard', 'students', 'courses'];
-      if (currentUser === 'liliana.martinez') {
-        allowed.push('teachers');
+  const menuItems = allMenuItems
+    .filter((item) => {
+      if (userRole === 'student') {
+        return ['student-portal'].includes(item.id);
       }
-      return allowed.includes(item.id);
-    }
-    // Para el administrador, quitamos el folleto informativo y el portal de alumno
-    return item.id !== 'brochure' && item.id !== 'student-portal';
-  });
+      if (userRole === 'teacher') {
+        return ['teacher-dashboard', 'courses', 'students', 'teachers'].includes(item.id);
+      }
+      // Para el administrador, quitamos el folleto informativo y el portal de alumno
+      return item.id !== 'brochure' && item.id !== 'student-portal';
+    })
+    .map((item) => {
+      if (userRole === 'teacher') {
+        if (item.id === 'teacher-dashboard') return { ...item, label: 'Mi Horario y Aulas' };
+        if (item.id === 'courses') return { ...item, label: 'Mis Cursos y Talleres' };
+        if (item.id === 'students') return { ...item, label: 'Mis Alumnos' };
+        if (item.id === 'teachers') return { ...item, label: 'Mi Perfil Docente' };
+      }
+      return item;
+    });
 
   const handleNavClick = (tab: NavigationTab) => {
     setActiveTab(tab);
